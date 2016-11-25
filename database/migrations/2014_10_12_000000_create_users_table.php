@@ -18,8 +18,8 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->string('phone', 10);
+            $table->enum('sex', ['MALE', 'FEMALE']);
         });
     }
 
@@ -30,6 +30,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::drop('users');
     }
 }

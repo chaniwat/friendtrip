@@ -1,20 +1,59 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { HttpModule } from '@angular/http';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { CoolStorageModule } from 'angular2-cool-storage';
+
+import { CoreModule } from "./module/core/index";
+import { routing } from "./routing";
 
 import { AppComponent } from './app.component';
+import { HomeComponent, NavbarComponent, FooterComponent } from './component';
+
+import { AuthenticationModule, UserService } from "./module/authentication";
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
   imports: [
     BrowserModule,
-    FormsModule,
-    HttpModule
+    HttpModule, // HTTP Service
+    CoolStorageModule, // HTML5 Local Storage
+    CoreModule,
+    AuthenticationModule,
+    routing
   ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    NavbarComponent,
+    FooterComponent,
+  ],
+  providers: [
+    { provide: APP_INITIALIZER,
+      useFactory: (userService: UserService) => () => userService.resolveUser(),
+      deps: [UserService],
+      multi: true }
+    ],
+    bootstrap: [AppComponent]
+  })
+  export class AppModule {
+
+    constructor() {
+      toastr.options = {
+        closeButton: false,
+        debug: false,
+        newestOnTop: true,
+        progressBar: true,
+        positionClass: "toast-bottom-left",
+        preventDuplicates: false,
+        onclick: null,
+        showDuration: 300,
+        hideDuration: 1000,
+        timeOut: 5000,
+        extendedTimeOut: 1000,
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut"
+      } as ToastrOptions;
+    }
+  }

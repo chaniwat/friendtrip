@@ -1,0 +1,46 @@
+<div class="container">
+  <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm" style="padding: 2rem 0 1rem;">
+    <h3 class="text-xs-center" style="margin-bottom: 2rem;">สมัครสมาชิก: เพื่อนร่วมทริป</h3>
+
+    <div class="form-group row">
+      <label for="register-email" class="col-xs-2 col-form-label">Email</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="email" ngModel name="email" id="register-email">
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="register-password" class="col-xs-2 col-form-label">Password</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="password" ngModel name="password" id="register-password">
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="register-name" class="col-xs-2 col-form-label">ชื่อ</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="text" ngModel name="name" id="register-name">
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="register-gender" class="col-xs-2 col-form-label">เพศ</label>
+      <div class="col-xs-10">
+        <select class="form-control" ngModel name="gender" id="register-gender">
+          <option value="MALE">ชาย</option>
+          <option value="FEMALE">หญิง</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="register-phone" class="col-xs-2 col-form-label">เบอร์โทรศัพท์</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="text" ngModel name="phone" id="register-phone">
+      </div>
+    </div>
+    <div class="row">
+      <div class="offset-xl-2 col-xl-8">
+        <button type="submit" class="btn btn-block btn-primary" [disabled]="!!submitted">
+          <i *ngIf="!submitted" class="fa fa-floppy-o fa-fw"></i><i *ngIf="!!submitted" class="fa fa-circle-o-notch fa-spin fa-fw"></i> Register
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

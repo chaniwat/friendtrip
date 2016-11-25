@@ -1,0 +1,15 @@
+@import "../../../assets/scss/variables";
+
+$navbar-height: 56px;
+
+#login-page {
+  position: relative;
+  height: calc(100vh - #{$navbar-height} - #{$footer-height});
+}
+
+#login-form {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  transform: translateY(-50%);
+}

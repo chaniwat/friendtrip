@@ -1,0 +1,85 @@
+<div class="container-fluid" style="padding: 1rem;">
+  <div class="row">
+    <div class="col-xl-10 col-md-8 col-xs-6">
+      <h1>Events</h1>
+    </div>
+    <div class="col-xl-2 col-md-4 col-xs-6">
+      <a class="btn btn-block btn-primary" routerLink="/event/create">
+        <i class="fa fa-pencil-square-o fa-fw" aria-hidden="true"></i> สร้างกิจกรรมใหม่
+      </a>
+    </div>
+    <div class="offset-xl-2 col-xl-8">
+      <table>
+        <tr>
+          <td>
+            <img src="assets/images/events/action.jpg" class="event-type-img" />
+          </td>
+          <td>
+            <img src="assets/images/events/camp.jpg" class="event-type-img" />
+          </td>
+          <td>
+            <img src="assets/images/events/eating.jpg" class="event-type-img" />
+          </td>
+          <td>
+            <img src="assets/images/events/foreign.jpg" class="event-type-img" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <img src="assets/images/events/heavy.jpg" class="event-type-img" />
+          </td>
+          <td>
+            <img src="assets/images/events/merit.jpg" class="event-type-img" />
+          </td>
+          <td>
+            <img src="assets/images/events/neture.jpg" class="event-type-img" />
+          </td>
+          <td>
+            <img src="assets/images/events/walking.jpg" class="event-type-img" />
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xl-12">
+      <hr />
+    </div>
+    <div class="col-xl-12">
+      <div class="list-group">
+        <a *ngFor="let item of events" class="list-group-item list-group-item-action" [routerLink]="['/event', item.id]">
+          <h2>{{ item.name }}</h2>
+          <h5>ประเภท: {{ item.type.name }}</h5>
+          <b>วันที่เริ่มต้น:</b> {{ item.start_date }}<br />
+          <b>วันที่สิ้นสุด:</b> {{ item.end_date }}<br />
+          <b>จัดโดย:</b> {{ item.owner.name }}<br /><br />
+          <span *ngIf="item.join !== null && item.join === false" class="tag tag-info" style="padding: 0.55rem 0.75rem; font-size: 0.8rem;">คุณไม่ได้ร่วมกิจกรรมนี้</span>
+          <span *ngIf="item.join !== null && item.join === true" class="tag tag-success" style="padding: 0.55rem 0.75rem; font-size: 0.8rem;">คุณเข้าร่วมกิจกรรมนี้</span>
+          <span *ngIf="item.join !== null && item.join === 'owner'" class="tag tag-warning" style="padding: 0.55rem 0.75rem; font-size: 0.8rem;">คุณเป็นเจ้าของกิจกรรมนี้</span>
+          <div class="arrow" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">
+            <i class="fa fa-chevron-right fa-4x" aria-hidden="true"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-xl-12 text-xs-center">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <li *ngIf="pagination.prev_page_url != null" class="page-item">
+            <a class="page-link" href="javascript:;" aria-label="Previous" (click)="paginationPrev()">
+              <span aria-hidden="true">&laquo;</span>
+              <span class="sr-only">Previous</span>
+            </a>
+          </li>
+          <li *ngFor="let num of numArray" class="page-item" [class.active]="paginationIsCurrentPage(num)">
+            <a class="page-link" href="javascript:;" (click)="paginationTo(num)">{{ num }}</a>
+          </li>
+          <li *ngIf="pagination.next_page_url != null" class="page-item">
+            <a class="page-link" href="javascript:;" aria-label="Next" (click)="paginationNext()">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only">Next</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

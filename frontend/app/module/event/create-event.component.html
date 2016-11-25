@@ -1,0 +1,58 @@
+<div class="container">
+  <form (ngSubmit)="onSubmit(createEventForm)" #createEventForm="ngForm" style="padding: 2rem 0 1rem;">
+    <div class="row">
+      <div class="col-xl-12">
+        <h2 class="text-xs-center">สร้างกิจกรรมใหม่</h2>
+      </div>
+      <div class="form-group col-xl-8">
+        <label for="event-name" class="form-control-label">ชื่อกิจกรรม</label>
+        <input type="text" class="form-control" ngModel name="name" id="event-name" placeholder="ชื่อกิจกรรม">
+      </div>
+      <div class="form-group col-xl-4">
+        <label for="event-type" class="form-control-label">ประเภทการท่องเที่ยว</label>
+        <select class="form-control" ngModel name="type" id="event-type" style="padding: 0.27rem 0.35rem 0;">
+          <option *ngFor="let item of eventTypes" value="{{item.id}}">{{item.name}}</option>
+        </select>
+      </div>
+      <div class="form-group col-xl-12">
+        <label for="event-dest" class="form-control-label">สถานที่ปลายทาง</label>
+        <input type="text" class="form-control" ngModel name="destination" id="event-destination" placeholder="สถานที่ปลายทาง">
+      </div>
+      <div class="form-group col-xl-12">
+        <label for="event-appt" class="form-control-label">สถานที่นัดหมาย</label>
+        <input type="text" class="form-control" ngModel name="appointment_place" id="event-appointment_place" placeholder="สถานที่นัดหมาย">
+      </div>
+      <div class="form-group col-xl-3">
+        <label for="event-start_date" class="form-control-label">วันที่ออกเดินทาง</label>
+        <input type="text" class="form-control" ngModel name="start_date" id="event-start_date" placeholder="dd/mm/yyyy" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+      </div>
+      <div class="form-group col-xl-3">
+        <label for="event-start_time" class="form-control-label">เวลา</label>
+        <input type="text" class="form-control" ngModel name="start_time" id="event-start_time" placeholder="h:mm AM/PM" data-provide="timepicker" data-show-inputs="false" data-default-time="12:00 AM" data-minute-step="1" data-icons='{"up": "fa fa-chevron-up", "down": "fa fa-chevron-down"}'>
+      </div>
+      <div class="form-group col-xl-3">
+        <label for="event-end_date" class="form-control-label">วันที่สิ้นสุดกิจกรรม</label>
+        <input type="text" class="form-control" ngModel name="end_date" id="event-end_date" placeholder="dd/mm/yyyy" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+      </div>
+      <div class="form-group col-xl-3">
+        <label for="event-end_time" class="form-control-label">เวลา</label>
+        <input type="text" class="form-control" ngModel name="end_time" id="event-end_time" placeholder="h:mm AM/PM" data-provide="timepicker" data-show-inputs="false" data-default-time="12:00 AM" data-minute-step="1" data-icons='{"up": "fa fa-chevron-up", "down": "fa fa-chevron-down"}'>
+      </div>
+      <div class="form-group col-xl-12">
+        <label for="event-approximate_cost" class="form-control-label">ค่าใช้จ่าย (โดยประมาณ)</label>
+        <input type="number" class="form-control" ngModel name="approximate_cost" id="event-approximate_cost" placeholder="ค่าใช้จ่าย">
+      </div>
+      <div class="form-group col-xl-12">
+        <label class="form-control-label">รายละเอียดกิจกรรม</label>
+        <div id="event-detail">
+          <h1>Hello World!</h1>
+        </div>
+      </div>
+      <div class="offset-xl-4 col-xl-4">
+        <button type="submit" class="btn btn-block btn-success" [disabled]="!!submitted">
+          <i *ngIf="!submitted" class="fa fa-floppy-o fa-fw"></i><i *ngIf="!!submitted" class="fa fa-circle-o-notch fa-spin fa-fw"></i> บันทึก
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

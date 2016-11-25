@@ -1,0 +1,14 @@
+div#event-detail {
+  &.mce-content-body {
+    min-height: 500px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    padding: 10px;
+  }
+
+  &.mce-edit-focus {
+    background-color: #fff;
+    border-color: #66afe9;
+    outline: none;
+  }
+}

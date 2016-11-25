@@ -1,0 +1,28 @@
+<div class="container-fluid" style="padding: 1rem;">
+  <div class="row">
+    <div class="col-xl-12" style="border-bottom: 1px solid #e6e6e6;">
+      <h1><a routerLink="/event"><i class="fa fa-arrow-left fa-fw" aria-hidden="true" style="color: black;"></i></a> {{ event.name }}</h1>
+    </div>
+    <div class="col-xl-12" style="padding-top: 1rem; font-size: 1.25rem;">
+      <b>ชื่อกิจกรรม</b>: {{ event.name }}<br />
+      <b>ประเภทกิจกรรม</b>: <a href="javascript:;">{{ event.type.name }}</a><br />
+      <b>วันที่เริ่มต้น:</b> {{ event.start_date }}<br />
+      <b>วันที่สิ้นสุด:</b> {{ event.end_date }}<br />
+      <b>จำนวนงบที่ใช้ (โดยประมาณ):</b> {{ event.approximate_cost }}<br />
+      <b>จัดโดย:</b> <a href="javascript:;">{{ event.owner.name }}</a><br />
+
+      <div class="btn-group btn-group-lg" role="group" aria-label="Basic example" style="margin-top: 0.8rem;">
+        <a *ngIf="event.join !== null && event.join === false" href="javascript:;" class="btn btn-success">เข้าร่วมกิจกรรม</a>
+        <a *ngIf="event.join !== null && event.join === true" class="btn btn-info disabled">คุณเข้าร่วมกิจกรรมนี้แล้ว</a>
+        <a *ngIf="event.join !== null && event.join === 'owner'" class="btn btn-warning disabled">คุณเป็นเจ้าของกิจกรรมนี้</a>
+        <a *ngIf="event.join == null" routerLink='/login' class="btn btn-warning">เข้าสู่ระบบ</a>
+      </div>
+    </div>
+    <div class="col-xl-12">
+      <hr />
+    </div>
+    <div class="col-xl-12">
+      <div class="container" [innerHTML]="eventDetails"></div>
+    </div>
+  </div>
+</div>

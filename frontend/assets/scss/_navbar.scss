@@ -1,0 +1,32 @@
+.navbar-friendtrip {
+  .navbar-brand {
+    color: $navbar-friendtrip-active-color;
+
+    @include hover-focus {
+      color: $navbar-friendtrip-active-color;
+    }
+  }
+
+  .navbar-nav {
+    .nav-link {
+      color: $navbar-friendtrip-color;
+
+      @include hover-focus {
+        color: $navbar-friendtrip-hover-color;
+      }
+    }
+
+    .open > .nav-link,
+    .active > .nav-link,
+    .nav-link.open,
+    .nav-link.active {
+      @include plain-hover-focus {
+        color: $navbar-friendtrip-active-color;
+      }
+    }
+  }
+
+  .navbar-divider {
+    background-color: rgba(255,255,255,.075);
+  }
+}

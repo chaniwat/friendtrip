@@ -1,10 +1,19 @@
 import { Component } from '@angular/core';
 
+import { ApiService } from './module/core';
+
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'main-app',
+  templateUrl: 'app.component.html'
 })
 export class AppComponent {
-  title = 'app works!';
+
+  constructor(
+    private api: ApiService
+  ) {}
+
+  public get isLoading(): boolean {
+    return this.api.isLoading();
+  }
+
 }

@@ -62,10 +62,18 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     private function handleWeb($request, Exception $exception) {
+        $bypass = false;
+
+        // Bypass assets
+        if($request->is('assets/*') || $request->is('favicon.ico')) {
+            $bypass = true;
+        }
 
         if($exception instanceof NotFoundHttpException) {
             // redirect 404 error (HTTP not found) to bootstrap.blade.php (let ng2 handle itself)
-            return response()->view('bootstrap')->header('Content-Type', 'text/html');
+            if(!$bypass) {
+                return response()->view('bootstrap')->header('Content-Type', 'text/html');
+            }
         }
 
         return parent::render($request, $exception);
@@ -90,23 +98,11 @@ class Handler extends ExceptionHandler
         if(env('APP_DEBUG')) {
             return parent::render($request, $exception);
         } else {
-            return response()->json(['invalid_request'], 400);
+            if($exception instanceof NotFoundHttpException) {
+                return response()->json(['error' => 'invalid_request'], $exception->getStatusCode());
+            } else {
+                return parent::render($request, $exception);
+            }
         }
-    }
-
-    /**
-     * Convert an authentication exception into an unauthenticated response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
-     * @return \Illuminate\Http\Response
-     */
-    protected function unauthenticated($request, AuthenticationException $exception)
-    {
-        if ($request->expectsJson()) {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
-        }
-
-        return redirect()->guest('login');
     }
 }

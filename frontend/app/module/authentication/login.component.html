@@ -1,0 +1,28 @@
+<div class="container" id="login-page">
+  <div id="login-form">
+    <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
+      <div class="row">
+        <div class="offset-xs-4 col-xs-4">
+          <h3 class="text-xs-center">เข้าสู่ระบบ</h3>
+        </div>
+        <div class="offset-xs-4 col-xs-4">
+          <div class="form-group" [class.has-danger]="email.invalid && email.dirty">
+            <label for="login-email" class="form-control-label">Email</label>
+            <input class="form-control" [class.form-control-danger]="email.invalid" type="email" ngModel #email="ngModel" name="email" id="login-email" required>
+          </div>
+        </div>
+        <div class="offset-xs-4 col-xs-4">
+          <div class="form-group" [class.has-danger]="password.invalid && password.dirty">
+            <label for="login-password" class="form-control-label">Password</label>
+            <input class="form-control" [class.form-control-danger]="password.invalid" type="password" ngModel #password="ngModel" name="password" id="login-password" required>
+          </div>
+        </div>
+        <div class="offset-xs-4 col-xs-4">
+          <button type="submit" class="btn btn-block btn-primary" [disabled]="!!submitted">
+            <i *ngIf="!submitted" class="fa fa-sign-in fa-fw"></i><i *ngIf="!!submitted" class="fa fa-circle-o-notch fa-spin fa-fw"></i> Login
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

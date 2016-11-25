@@ -16,9 +16,17 @@
 // Load THSarabunNew font
 @import "../fonts/thsarabunnew";
 
+$enable-flex: true;
 $font-family-base: $font-family-sans-serif, "THSarabunNew";
+$headings-margin-bottom: 1.2rem;
+$line-height-base: 1.6;
 
 // Load bootstrap(v4) style
 @import "../../../node_modules/bootstrap/scss/bootstrap";
+
+// Overriding classes
+.navbar-nav .nav-item {
+  padding-top: 1px;
+}
 
 // END Overriding bootstrap(v4) variables
