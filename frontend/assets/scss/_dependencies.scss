@@ -1,0 +1,24 @@
+// Font-Awesome
+@import '../../../node_modules/font-awesome/scss/font-awesome';
+
+// Material color
+@import "../../../node_modules/material-colors/dist/colors.scss";
+
+// toastr
+@import "../../../node_modules/toastr/toastr";
+
+// Load bootstrap(v4)
+// Overriding bootstrap(v4) variables
+//
+// Load bootstrap variables
+@import "../../../node_modules/bootstrap/scss/_variables";
+
+// Load THSarabunNew font
+@import "../fonts/thsarabunnew";
+
+$font-family-base: $font-family-sans-serif, "THSarabunNew";
+
+// Load bootstrap(v4) style
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+// END Overriding bootstrap(v4) variables
