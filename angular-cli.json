@@ -20,15 +20,28 @@
       "prefix": "app",
       "mobile": false,
       "styles": [
-        "./assets/scss/main.scss"
+        "./assets/scss/main.scss",
+        "../node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css",
+        "./assets/css/bootstrap-timepicker.css"
       ],
       "scripts": [
         "../node_modules/jquery/dist/jquery.js",
         "../node_modules/tether/dist/js/tether.js",
         "../node_modules/bootstrap/dist/js/bootstrap.js",
+        "../node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.js",
         "../node_modules/toastr/toastr.js",
         "../node_modules/lodash/lodash.js",
-        "../node_modules/moment/moment.js"
+        "../node_modules/moment/moment.js",
+        "../node_modules/tinymce/tinymce.js",
+        "../node_modules/tinymce/themes/inlite/theme.js",
+        "../node_modules/tinymce/plugins/image/plugin.js",
+        "../node_modules/tinymce/plugins/link/plugin.js",
+        "../node_modules/tinymce/plugins/paste/plugin.js",
+        "../node_modules/tinymce/plugins/table/plugin.js",
+        "../node_modules/tinymce/plugins/textpattern/plugin.js",
+        "../node_modules/tinymce/plugins/autolink/plugin.js",
+        "../node_modules/tinymce/plugins/contextmenu/plugin.js",
+        "../node_modules/tinymce/plugins/textcolor/plugin.js"
       ],
       "environments": {
         "source": "environments/environment.ts",

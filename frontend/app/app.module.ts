@@ -29,31 +29,33 @@ import { AuthenticationModule, UserService } from "./module/authentication";
   ],
   providers: [
     { provide: APP_INITIALIZER,
-      useFactory: (userService: UserService) => () => userService.resolveUser(),
+      useFactory: (userService: UserService) => () => userService.getAuthenticatedUser(),
       deps: [UserService],
       multi: true }
-    ],
-    bootstrap: [AppComponent]
-  })
-  export class AppModule {
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule {
 
-    constructor() {
-      toastr.options = {
-        closeButton: false,
-        debug: false,
-        newestOnTop: true,
-        progressBar: true,
-        positionClass: "toast-bottom-left",
-        preventDuplicates: false,
-        onclick: null,
-        showDuration: 300,
-        hideDuration: 1000,
-        timeOut: 5000,
-        extendedTimeOut: 1000,
-        showEasing: "swing",
-        hideEasing: "linear",
-        showMethod: "fadeIn",
-        hideMethod: "fadeOut"
-      } as ToastrOptions;
-    }
+  constructor() {
+    // TODO Make own notification system (Toast)
+    toastr.options = {
+      closeButton: false,
+      debug: false,
+      newestOnTop: true,
+      progressBar: true,
+      positionClass: "toast-bottom-left",
+      preventDuplicates: false,
+      onclick: null,
+      showDuration: 300,
+      hideDuration: 1000,
+      timeOut: 5000,
+      extendedTimeOut: 1000,
+      showEasing: "swing",
+      hideEasing: "linear",
+      showMethod: "fadeIn",
+      hideMethod: "fadeOut"
+    } as ToastrOptions;
   }
+
+}

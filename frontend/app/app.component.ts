@@ -12,8 +12,8 @@ export class AppComponent {
     private api: ApiService
   ) {}
 
-  public get isLoading(): boolean {
-    return this.api.isLoading();
+  public get isRequesting(): boolean {
+    return this.api.isRequesting();
   }
 
 }

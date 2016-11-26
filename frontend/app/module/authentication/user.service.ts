@@ -1,91 +1,88 @@
 import { Injectable } from '@angular/core';
-import { RequestMethod } from '@angular/http';
 
-import { ApiService, LocalStorageService, Request } from "../core";
+import { ApiService, LocalStorageService } from "../core";
 
 import { User } from './user';
 
 @Injectable()
 export class UserService {
 
-  user: User;
+  public user: User;
 
   constructor(
     private api: ApiService,
     private localStorage: LocalStorageService
   ) {
-
-    // Reauthenticate callback
-    let reAuthHandler = (request, error): Promise<any> => {
+    // Reauthenticate callback handler
+    let renewTokenHandler = (request, error): Promise<any> => {
       if(this.localStorage.user) {
-        return this.authenticate()
-        .then(() => {
-          switch(request.method) {
-            case RequestMethod.Get: return this.api.get(request);
-            case RequestMethod.Post: return this.api.post(request);
-          }
-        });
+        return this.authenticate().then(() => { this.api.request(request) });
       } else {
         return Promise.reject(error);
       }
     };
 
-    // Inject token_expired and token_not_provided error to auto renew token
-    this.api.injectErrorHandler("token_expired", reAuthHandler);
-    this.api.injectErrorHandler("token_not_provided", reAuthHandler);
-
+    // Embed token_expired and token_not_provided error handler to auto renew token
+    this.api.embedErrorHandler("token_expired", renewTokenHandler);
+    this.api.embedErrorHandler("token_not_provided", renewTokenHandler);
   }
 
   /**
-  * Create new user
-  * @param user
-  * @param password
-  * @returns {Promise<Response>}
-  */
+   * Create new user
+   * @param user
+   * @param password
+   * @returns {Promise<Response>}
+   */
   public createUser(user: User, password: string): Promise<boolean> {
-    let body = JSON.stringify({ user, password });
-
-    return this.api.post(this.api.makeRequest('/users', body))
-    .then(response => { return response.status == 201; })
-    .catch(this.handleError.bind(this));
+    return this.api.post('/users', { user, password })
+      .then(response => { return response.status == 201; })
   }
 
   /**
-  * Request new token
-  * @param email
-  * @param password
-  * @returns {Promise<Response>}
-  */
+   * Request new token
+   * @param email
+   * @param password
+   * @returns {Promise<Response>}
+   */
   public authenticate(email?: string, password?: string): Promise<User> {
     if(!email && !password) {
-      if(this.localStorage.user) {
+      let user = this.localStorage.user;
+      if(user && user.email && user.password) {
         // If email and password not given
         // Then authenticate from localStorage if information exist
-        let user = this.localStorage.user;
         email = user.email;
         password = user.password;
       } else {
         // If user information not exist in localStorage
         // Then reject the authenticate process (Promise.reject)
-        return Promise.reject('No user in storage');
+        this.localStorage.token = null;
+        this.localStorage.user = null;
+        return Promise.reject({error: 'No user in storage'});
       }
     }
 
-    let body = JSON.stringify({ email, password, user: true });
+    return this.api.post('/authentication', { email, password, user: true })
+      .then(response => {
+        this.localStorage.token = response.json().token;
+        this.localStorage.user = { email, password };
 
-    return this.api.post(this.api.makeRequest('/authentication', body))
-    .then(response => {
-      let params = response.json();
-      this.localStorage.token = params.token;
-      this.localStorage.user = { email, password };
-      return this.user = params.user;
-    })
-    .catch(this.handleError.bind(this));
+        return this.user = response.json().user;
+      });
   }
 
   /**
-  * Logout (clear authentication token)
-  */
+   * Resolve user if authenticate (Check expired)
+   */
+  public getAuthenticatedUser(): Promise<User> {
+    if(!!this.localStorage.token || !!this.localStorage.user) {
+      return this.api.get('/authentication')
+        .then(response => this.user = response.json().user as User)
+    }
+  }
+
+  /**
+   * Logout (clear authentication token)
+   */
   public logout() {
     this.localStorage.token = null;
     this.localStorage.user = null;
@@ -93,37 +90,10 @@ export class UserService {
   }
 
   /**
-  * Is user logged in
-  */
-  public isLoggedIn(): boolean {
+   * Is having user
+   */
+  public isHavingUser(): boolean {
     return !!this.user;
   }
 
-  /**
-  * Resolve user if authenticate (Check expired)
-  */
-  public resolveUser(): Promise<User> {
-    if(!!this.localStorage.token || !!this.localStorage.user) {
-        return this.getAuthenticationUser();
-    }
-  }
-
-  /**
-  * Get authentication user
-  * @param token
-  * @returns {Promise<Response>}
-  */
-  public getAuthenticationUser(): Promise<User> {
-    return this.api.get(this.api.makeRequest('/authentication'))
-    .then(response => this.user = response.json().user as User)
-    .catch(this.handleError.bind(this));
-  }
-
-  /**
-  * Handle any promises error
-  */
-  private handleError(error: any): Promise<any> {
-    error = error.json().error;
-    return Promise.reject(error);
-  }
 }

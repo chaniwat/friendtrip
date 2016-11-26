@@ -12,29 +12,45 @@ export class LocalStorageService {
   * Get authentication token
   */
   public get token(): string {
-    return this.localStorage.getItem('auth_token');
+    return this.getObject('auth_token');
   }
 
   /**
   * Set authentication token
   */
   public set token(token: string) {
-    if(token == null) {
-      localStorage.removeItem('auth_token');
-    } else {
-      this.localStorage.setItem('auth_token', token);
-    }
+    this.setObject('auth_token', token);
   }
 
+  /**
+   * Get user object
+   */
   public get user(): { email: string, password: string } {
-    return JSON.parse(this.localStorage.getItem('user'));
+    return this.getObject('user');
   }
 
+  /**
+   * Set user object
+   */
   public set user(user: { email: string, password: string }) {
-    if(user == null) {
-      localStorage.removeItem('user');
+    this.setObject('user', user);
+  }
+
+  /**
+   * Get any object
+   */
+  public getObject(key): any {
+    return JSON.parse(this.localStorage.getItem(key));
+  }
+
+  /**
+   * Set any object
+   */
+  public setObject(key, value) {
+    if(value == null) {
+      this.localStorage.removeItem(key);
     } else {
-      this.localStorage.setItem('user', JSON.stringify(user));
+      this.localStorage.setItem(key, JSON.stringify(value));
     }
   }
 
