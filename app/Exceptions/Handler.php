@@ -99,7 +99,7 @@ class Handler extends ExceptionHandler
             return parent::render($request, $exception);
         } else {
             if($exception instanceof NotFoundHttpException) {
-                return response()->json(['error' => 'invalid_request'], $exception->getStatusCode());
+                return response()->json(['message' => 'invalid_request'], $exception->getStatusCode());
             } else {
                 return parent::render($request, $exception);
             }

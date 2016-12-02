@@ -83,7 +83,7 @@ class EventController extends Controller
         $event = Event::find($id);
 
         if($event == null) {
-            return response()->json(['error' => 'event_not_found'], 404);
+            return response()->json(['message' => 'event_not_found'], 404);
         }
 
         $eventArray = $this->extractEventData($event, $user);

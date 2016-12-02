@@ -4,15 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EventSetting extends Model
+/**
+ * Class EventOverview <br>
+ * Views model only (DON'T USE TO UPDATE)
+ * @package App
+ */
+class EventOverview extends Model
 {
-    // Constant for keys
-    const ALLOW_RELIGION = 'ALLOW_RELIGION';
-    const ALLOW_AGE = 'ALLOW_AGE';
-    const ALLOW_GENDER = 'ALLOW_GENDER';
-    const MAX_PARTICIPANT = 'MAX_PARTICIPANT';
-
-    // Model settings
     public $incrementing = false;
     public $timestamps = false;
 

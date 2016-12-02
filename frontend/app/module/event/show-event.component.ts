@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { Event } from './event';
-import { EventService } from './event.service';
 
 import { UserService } from '../authentication';
 

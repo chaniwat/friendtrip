@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { NgForm } from '@angular/forms';
 
 import { UserService } from "./user.service";
+import { ErrorResponse } from "../core/api.service";
 
 @Component({
   selector: 'page-login',
@@ -29,8 +30,8 @@ export class LoginComponent {
       toastr.success('Login success');
       this.router.navigateByUrl('/');
     })
-    .catch(error => {
-      toastr.error('Error: ' + error);
+    .catch((error: ErrorResponse) => {
+      toastr.error('Error: ' + error.message);
       this.submitted = false;
     });
   }

@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EventType extends Model
+class Notification extends Model
 {
     public $timestamps = false;
 
@@ -21,12 +21,4 @@ class EventType extends Model
      * @var array
      */
     protected $hidden = [];
-
-    /**
-     * Get all events of this type
-     */
-    public function events()
-    {
-        return $this->hasMany('App\Event');
-    }
 }

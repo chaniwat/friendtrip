@@ -29,7 +29,12 @@ import { AuthenticationModule, UserService } from "./module/authentication";
   ],
   providers: [
     { provide: APP_INITIALIZER,
-      useFactory: (userService: UserService) => () => userService.getAuthenticatedUser(),
+      useFactory: (userService: UserService) => () => {
+        // ignore any error (only resolve the user)
+        return userService.getAuthenticatedUser()
+          .then(() => true)
+          .catch(() => Promise.resolve(true))
+      },
       deps: [UserService],
       multi: true }
   ],

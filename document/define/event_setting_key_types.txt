@@ -1,0 +1,49 @@
+Normal types:
+    "NUMBER": number value
+        Examples:
+            1
+            -1
+            0
+        Special arguments: -
+    "FLOAT": floating-point value
+        Examples:
+            0.00
+            1.1
+            -1.1
+        Special arguments: -
+    "BOOLEAN": boolean value
+        Examples:
+            true
+            false
+        Special arguments: -
+    "STRING": string value
+        Examples:
+            hello
+            Yo yo
+            123
+        Special arguments: -
+    "ARRAY": value as string array
+        Examples:
+            one
+            one,two,three
+        Special arguments: * => keep all available values
+
+Special types:
+    "RANGE": number in range
+        Examples:
+            10-15
+            25-45
+        Special arguments: * => all values
+    "RANGE_FLOAT": floating-point in range
+        Examples:
+            10-15
+            30.25-45.55
+        Special arguments: * => all values
+    "RANGE_ARRAY": multiple range
+        Examples:
+            10-15,35-65
+        Special arguments: * => all values
+    "RANGE_ARRAY_FLOAT": multiple floating-point range
+        Examples:
+            30.25-45.55,85.99-99.99
+        Special arguments: * => all values

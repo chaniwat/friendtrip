@@ -6,6 +6,7 @@ import { ApiService } from '../core';
 
 import { Event, EventType } from './event';
 import { EventService } from './event.service';
+import { ErrorResponse } from "../core/api.service";
 
 @Component({
   selector: 'page-event-create',
@@ -45,8 +46,8 @@ export class CreateEventComponent implements OnInit, AfterViewInit, OnDestroy {
         {title: 'Responsive', value: 'img-fluid'},
       ],
       image_advtab: true,
-      images_upload_url: this.apiService.generateApiUrl('/images'),
-      images_upload_base_path: this.apiService.generateApiUrl('/upload'),
+      images_upload_url: this.apiService.generateApiUrl('images'),
+      images_upload_base_path: this.apiService.generateApiUrl('upload'),
       inline: true,
       paste_data_images: true,
 
@@ -75,19 +76,14 @@ export class CreateEventComponent implements OnInit, AfterViewInit, OnDestroy {
     event.start_date = event.start_date.format('YYYY-MM-DD HH:mm:ss');
     event.end_date = event.end_date.format('YYYY-MM-DD HH:mm:ss');
 
-    // console.log(JSON.parse(JSON.stringify(event)));
-    // this.submitted = false;
-
     this.editor.uploadImages(() => {
       this.eventService.createEvent(event)
-      .then(result => {
-        if(result) {
-          toastr.success('Create new event successful');
-          this.router.navigateByUrl('/event');
-        }
+      .then(() => {
+        toastr.success('Create new event successful');
+        this.router.navigateByUrl('/event');
       })
-      .catch(error => {
-        toastr.error('Something wrong: ' + error);
+      .catch((error: ErrorResponse) => {
+        toastr.error('Something wrong: ' + error.message);
         this.submitted = false;
       });
     });

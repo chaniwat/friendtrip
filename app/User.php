@@ -12,13 +12,11 @@ class User extends Authenticatable
     public $timestamps = false;
 
     /**
-     * The attributes that are mass assignable.
+     * The attributes that are cannot mass assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'name', 'email', 'password', 'phone', 'sex'
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -30,9 +28,23 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get all users's created event
+     * Get all events that create by this user
      */
-    public function events() {
-        return $this->hasMany('App\Event');
+    public function owns() {
+        return $this->hasMany('App\Event', 'owner_id', 'id');
+    }
+
+    /**
+     * Get all event this user participate (joined or leave)
+     */
+    public function participates() {
+        return $this->belongsToMany('App\Event', 'event_join_user', 'user_id', 'event_id')->withPivot('joined_at', 'status', 'staff');
+    }
+
+    /**
+     * Get all notifications
+     */
+    public function notifications() {
+        return $this->hasMany('App\Notification', 'user_id', 'id');
     }
 }

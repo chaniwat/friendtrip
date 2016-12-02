@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 
 import { User } from "./user";
 import { UserService } from "./user.service";
+import { ErrorResponse } from "../core/api.service";
 
 @Component({
   selector: 'page-register',
@@ -34,8 +35,8 @@ export class RegisterComponent {
         this.router.navigateByUrl("/");
       }
     })
-    .catch(error => {
-      toastr.error('Something wrong: ' + error);
+    .catch((error: ErrorResponse) => {
+      toastr.error('Something wrong: ' + error.message);
       this.submitted = false;
     });
   }

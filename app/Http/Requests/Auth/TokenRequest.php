@@ -51,7 +51,7 @@ class TokenRequest extends FormRequest
      */
     protected function formatErrors(Validator $validator)
     {
-        return ["error" => $validator->errors()->all()];
+        return ["message" => $validator->errors()->all()];
     }
 
 }

@@ -20,13 +20,15 @@ class Event extends Model
      *
      * @var array
      */
-    protected $hidden = ['user_id', 'event_type_id', 'details'];
+    protected $hidden = [
+        'owner_id'
+    ];
 
     /**
      * Get the owner of this event
      */
     public function owner() {
-        return $this->belongsTo('App\User', 'user_id', 'id');
+        return $this->belongsTo('App\User', 'owner_id', 'id');
     }
 
     /**
@@ -34,7 +36,7 @@ class Event extends Model
      */
     public function participants()
     {
-        return $this->belongsToMany('App\User', 'event_user', 'event_id', 'user_id')->withPivot('joined_at');
+        return $this->belongsToMany('App\User', 'event_join_user', 'event_id', 'user_id')->withPivot('joined_at', 'status', 'staff');
     }
 
     /**
@@ -43,12 +45,4 @@ class Event extends Model
     public function settings() {
         return $this->belongsToMany('App\EventSetting', 'event_setting_value', 'event_id', 'event_setting_id')->withPivot('value');
     }
-
-    /**
-     * Get event type
-     */
-     public function type()
-     {
-         return $this->belongsTo('App\EventType', 'event_type_id', 'id');
-     }
 }

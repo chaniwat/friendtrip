@@ -42,7 +42,7 @@ class UserController extends Controller
         $user = User::find($id);
 
         if(!$user) {
-            return response()->json(["error" => "user_not_found"], 404);
+            return response()->json(["message" => "user_not_found"], 404);
         }
 
         return response()->json(compact('user'));

@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Event } from './event';
 import { EventService } from './event.service';
+import { Pagination } from "../../utility/pagination";
 
 @Component({
   selector: 'page-event',
@@ -12,7 +13,7 @@ import { EventService } from './event.service';
 export class EventComponent implements OnInit {
 
   events: Event[];
-  pagination: any;
+  pagination: Pagination;
 
   constructor(
     private eventService: EventService,
@@ -20,13 +21,13 @@ export class EventComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.data.forEach((data: { events: {data: Event[], pagination: any} }) => {
+    this.route.data.forEach((data: { events: {data: Event[], pagination: Pagination} }) => {
       this.events = data.events.data;
       this.pagination = data.events.pagination;
     });
   }
 
-  public get numArray(): number[] {
+  public get numsPage(): number[] {
     let numArray = [];
 
     for(let i = 1; i <= this.pagination.last_page; i++) {
@@ -36,35 +37,27 @@ export class EventComponent implements OnInit {
     return numArray;
   }
 
-  public paginationNext() {
+  public nextPage() {
     if(this.pagination.next_page_url != null) {
-      this.eventService.getEvents(this.pagination.current_page + 1)
+      return this.toPage(this.pagination.current_page + 1);
+    }
+  }
+
+  public toPage(page: number) {
+    return this.eventService.getEvents(page)
       .then(response => {
         this.events = response.data;
         this.pagination = response.pagination;
       });
-    }
   }
 
-  public paginationTo(page: number) {
-    this.eventService.getEvents(page)
-    .then(response => {
-      this.events = response.data;
-      this.pagination = response.pagination;
-    });
-  }
-
-  public paginationPrev() {
+  public previousPage() {
     if(this.pagination.prev_page_url != null) {
-      this.eventService.getEvents(this.pagination.current_page - 1)
-      .then(response => {
-        this.events = response.data;
-        this.pagination = response.pagination;
-      });
+      return this.toPage(this.pagination.current_page - 1);
     }
   }
 
-  public paginationIsCurrentPage(page: number) {
+  public isCurrentPage(page: number) {
     return page == this.pagination.current_page;
   }
 

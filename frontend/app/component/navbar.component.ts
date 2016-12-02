@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { UserService, User } from "../module/authentication";
@@ -7,17 +7,12 @@ import { UserService, User } from "../module/authentication";
   selector: 'comp-navbar',
   templateUrl: 'navbar.component.html'
 })
-export class NavbarComponent implements OnInit {
-  title = 'Friends Trip';
+export class NavbarComponent {
 
   constructor(
     private userService: UserService,
     private router: Router
   ) {}
-
-  ngOnInit(): void {
-
-  }
 
   get user(): User {
     return this.userService.user;
@@ -32,4 +27,5 @@ export class NavbarComponent implements OnInit {
     toastr.success('Logout success');
     this.router.navigateByUrl("/login");
   }
+
 }
