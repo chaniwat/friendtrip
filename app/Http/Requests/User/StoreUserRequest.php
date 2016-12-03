@@ -25,9 +25,13 @@ class StoreUserRequest extends FormRequest
     public function rules()
     {
         return [
-            "user.name" => "required",
-            "user.email" => "required|unique:users,email",
+            "user.email" => "required|email|unique:users,email",
+            "user.first_name" => "required",
+            "user.last_name" => "required",
+            "user.display_name" => "required",
+            "user.birthdate" => "required|date_format:Y-m-d",
             "user.gender" => "required|in:MALE,FEMALE",
+            "user.religion" => "required",
             "user.phone" => "size:10",
             "password" => "required"
         ];
@@ -41,13 +45,7 @@ class StoreUserRequest extends FormRequest
     public function messages()
     {
         return [
-            "user.name.required" => "user_no_name_given",
-            "user.email.required" => "user_no_email_given",
-            "user.gender.required" => "user_no_sex_given",
-            "password.required" => "user_no_password_given",
-            "user.email.unique" => "user_email_already_used",
-            "user.gender.in" => "user_sex_value_not_accept",
-            "user.phone.size" => "user_invalid_phone_length"
+
         ];
     }
 

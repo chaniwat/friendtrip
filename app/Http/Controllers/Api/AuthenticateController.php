@@ -31,7 +31,7 @@ class AuthenticateController extends Controller
      *      @SWG\Parameter(
      *          in="body",
      *          name="body",
-     *          description="User identity information",
+     *          description="User identity",
      *          required=true,
      *          @SWG\Schema(ref="#/definitions/AuthenticationInfo")
      *      ),
@@ -43,12 +43,7 @@ class AuthenticateController extends Controller
      *      @SWG\Response(
      *          response="401",
      *          description="Invalid credential",
-     *          @SWG\Schema(ref="#/definitions/Error")
-     *      ),
-     *      @SWG\Response(
-     *          response="500",
-     *          description="Internal server error",
-     *          @SWG\Schema(ref="#/definitions/Error")
+     *          @SWG\Schema(ref="#/definitions/MessageResponse")
      *      )
      * )
      *
@@ -58,14 +53,9 @@ class AuthenticateController extends Controller
     public function authenticate(Requests\Auth\TokenRequest $request) {
         $credentials = $request->only('email', 'password');
 
-        try {
-            // verify the credentials and create a token for the user
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['message' => 'invalid_credentials'], 401);
-            }
-        } catch (JWTException $e) {
-            // something went wrong
-            return response()->json(['message' => 'could_not_create_token'], 500);
+        // verify the credentials and create a token for the user
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['message' => 'invalid_credentials'], 401);
         }
 
         // if no errors are encountered we can return a JWT with authenticate user
@@ -83,54 +73,37 @@ class AuthenticateController extends Controller
      *      path="/authentication",
      *      summary="Get authenticate user information",
      *      tags={"authentication"},
-     *      description="Get information of given token user information",
+     *      description="Get user information of given token",
      *      operationId="getAuthUserInfo",
-     *      consumes={"application/json"},
      *      produces={"application/json"},
      *      @SWG\Parameter(
      *          in="header",
      *          name="Authorization",
-     *          description="JWT-Token",
+     *          description="Token",
      *          type="string",
      *          default="Bearer ",
      *          required=true
      *      ),
      *      @SWG\Response(
      *          response="200",
-     *          description="Return user information",
+     *          description="User information",
      *          @SWG\Schema(ref="#/definitions/User")
      *      ),
      *      @SWG\Response(
      *          response="400",
-     *          description="Token not provided or invalid",
-     *          @SWG\Schema(ref="#/definitions/Error")
+     *          description="No token provided or invalid"
      *      ),
      *      @SWG\Response(
      *          response="401",
-     *          description="Token expired",
-     *          @SWG\Schema(ref="#/definitions/Error")
-     *      ),
-     *      @SWG\Response(
-     *          response="404",
-     *          description="User not found",
-     *          @SWG\Schema(ref="#/definitions/Error")
-     *      ),
-     *      @SWG\Response(
-     *          response="500",
-     *          description="Internal server error",
-     *          @SWG\Schema(ref="#/definitions/Error")
+     *          description="Token expired"
      *      )
      * )
      *
      * @return mixed
      */
     public function index() {
-        if (!$user = JWTAuth::parseToken()->authenticate()) {
-            return response()->json(['message' => 'user_not_found'], 404);
-        }
-
-        // the token is valid and we have found the user via the sub claim
-        return response()->json(compact('user'));
+        $user = JWTAuth::parseToken()->authenticate();
+        return response()->json($user);
     }
 
 }

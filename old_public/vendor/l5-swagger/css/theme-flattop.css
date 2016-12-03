@@ -421,8 +421,8 @@
 .swagger-section .swagger-ui-wrap .model-signature pre {
   font-size: .85em;
   line-height: 1.2em;
-  overflow: auto;
-  max-height: 200px;
+  overflow: initial;
+  max-height: initial;
   cursor: pointer;
 }
 .swagger-section .swagger-ui-wrap .model-signature ul.signature-nav {

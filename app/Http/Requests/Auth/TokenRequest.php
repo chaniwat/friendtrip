@@ -41,8 +41,7 @@ class TokenRequest extends FormRequest
     public function messages()
     {
         return [
-            "email.required" => "no_email_given",
-            "password.required" => "no_password_given",
+
         ];
     }
 

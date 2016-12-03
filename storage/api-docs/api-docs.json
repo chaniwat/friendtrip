@@ -20,11 +20,8 @@
                     "authentication"
                 ],
                 "summary": "Get authenticate user information",
-                "description": "Get information of given token user information",
+                "description": "Get user information of given token",
                 "operationId": "getAuthUserInfo",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -32,7 +29,7 @@
                     {
                         "name": "Authorization",
                         "in": "header",
-                        "description": "JWT-Token",
+                        "description": "Token",
                         "required": true,
                         "type": "string",
                         "default": "Bearer "
@@ -40,34 +37,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Return user information",
+                        "description": "User information",
                         "schema": {
                             "$ref": "#/definitions/User"
                         }
                     },
                     "400": {
-                        "description": "Token not provided or invalid",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
+                        "description": "No token provided or invalid"
                     },
                     "401": {
-                        "description": "Token expired",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
+                        "description": "Token expired"
                     }
                 }
             },
@@ -88,7 +67,7 @@
                     {
                         "name": "body",
                         "in": "body",
-                        "description": "User identity information",
+                        "description": "User identity",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/AuthenticationInfo"
@@ -105,20 +84,568 @@
                     "401": {
                         "description": "Invalid credential",
                         "schema": {
-                            "$ref": "#/definitions/Error"
+                            "$ref": "#/definitions/MessageResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events": {
+            "get": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get all event information",
+                "description": "Get all event information",
+                "operationId": "getAllEvents",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "show_per_page",
+                        "in": "query",
+                        "description": "Set show events per page",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Pagination page",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "full_event",
+                        "in": "query",
+                        "description": "Show full event or not?",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search event by name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "place",
+                        "in": "query",
+                        "description": "Search event by place",
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter event by type",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All Events information",
+                        "schema": {
+                            "$ref": "#/definitions/AllEvents"
                         }
                     },
-                    "500": {
-                        "description": "Internal server error",
+                    "400": {
+                        "description": "Invalid token"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Create new event",
+                "description": "Create new event into database (owner is current authentication user (token))",
+                "operationId": "newEvent",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Event information",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Error"
+                            "$ref": "#/definitions/EventBody"
                         }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "New event has been created"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "422": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/events/{event_id}": {
+            "get": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get event information",
+                "description": "Get information of event {event_id}",
+                "operationId": "getEventInfo",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event information",
+                        "schema": {
+                            "$ref": "#/definitions/Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "Event not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Update event information",
+                "description": "Update event information of {event_id} (Need authentication token for self update or admin token for update to any event)",
+                "operationId": "updateEvent",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Event information",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/EventBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update event information successful"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission"
+                    },
+                    "422": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/events/{event_id}/join": {
+            "post": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Join event",
+                "description": "Join to event",
+                "operationId": "joinEvent",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Join event success"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "No event found"
+                    }
+                }
+            }
+        },
+        "/events/{event_id}/leave": {
+            "post": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Leave event",
+                "description": "Leave to event",
+                "operationId": "leaveEvent",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "leave event success"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "No event found or not joined to event"
+                    }
+                }
+            }
+        },
+        "/events/{event_id}/cancel": {
+            "post": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Cancel event",
+                "description": "Cancel the event",
+                "operationId": "cancelEvent",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "cancel event success"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission (not an owner of event)"
+                    },
+                    "404": {
+                        "description": "No event found"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create new user",
+                "description": "Create new user into database",
+                "operationId": "newUser",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User information",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NewUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "New user has been created"
+                    },
+                    "422": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/users/{user_id}": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user information",
+                "description": "Get user information of {user_id} (Need authentication token for some detail)",
+                "operationId": "getUserInfo",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return user information",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user information",
+                "description": "Update user information of {user_id} (Need authentication token for self update or admin token for update to any user)",
+                "operationId": "updateUserInfo",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "required": true,
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User information to update",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update user information successful"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/password": {
+            "put": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user password",
+                "description": "Update user password of {user_id} (Need authentication token for self update or admin token for update to any user)",
+                "operationId": "updateUserPassword",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "required": true,
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "New password",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdatePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update user password successful"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission"
+                    },
+                    "404": {
+                        "description": "User not found"
                     }
                 }
             }
         }
     },
     "definitions": {
+        "AllEvents": {
+            "required": [
+                "events",
+                "pagination"
+            ],
+            "properties": {
+                "events": {
+                    "description": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Event"
+                    }
+                },
+                "pagination": {
+                    "description": "",
+                    "$ref": "#/definitions/Pagination"
+                }
+            },
+            "type": "object"
+        },
         "AuthenticationInfo": {
             "required": [
                 "email",
@@ -141,12 +668,139 @@
             },
             "type": "object"
         },
-        "Error": {
+        "Event": {
             "required": [
-                "message"
+                "id"
             ],
             "properties": {
-                "message": {
+                "id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "owner": {
+                    "description": "",
+                    "$ref": "#/definitions/User"
+                },
+                "participant_count": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "join_status": {
+                    "description": "",
+                    "type": "string",
+                    "default": "owner or boolean (true = join, false = not join yet) | if sent token for checking status"
+                }
+            },
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EventBody"
+                }
+            ]
+        },
+        "EventBody": {
+            "required": [
+                "name",
+                "destination_place",
+                "start_date",
+                "end_date",
+                "appointment_place",
+                "appointment_time",
+                "details",
+                "type",
+                "approximate_cost",
+                "status"
+            ],
+            "properties": {
+                "name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "destination_place": {
+                    "description": "",
+                    "type": "string"
+                },
+                "destination_place_id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "destination_latitude": {
+                    "description": "",
+                    "type": "number",
+                    "format": "double"
+                },
+                "destination_longitude": {
+                    "description": "",
+                    "type": "number",
+                    "format": "double"
+                },
+                "start_date": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
+                "end_date": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
+                "appointment_place": {
+                    "description": "",
+                    "type": "string"
+                },
+                "appointment_place_id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "appointment_latitude": {
+                    "description": "",
+                    "type": "number",
+                    "format": "double"
+                },
+                "appointment_longitude": {
+                    "description": "",
+                    "type": "number",
+                    "format": "double"
+                },
+                "appointment_time": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
+                "details": {
+                    "description": "",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "",
+                    "type": "string"
+                },
+                "approximate_cost": {
+                    "description": "",
+                    "type": "number",
+                    "format": "double"
+                },
+                "settings": {
+                    "description": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/EventSetting"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "EventSetting": {
+            "required": [
+                "event_setting_id",
+                "value"
+            ],
+            "properties": {
+                "event_setting_id": {
+                    "description": "",
+                    "type": "string"
+                },
+                "value": {
                     "description": "",
                     "type": "string"
                 }
@@ -154,6 +808,117 @@
             "type": "object"
         },
         "NewUser": {
+            "required": [
+                "user",
+                "password"
+            ],
+            "properties": {
+                "user": {
+                    "description": "",
+                    "$ref": "#/definitions/UserBody"
+                },
+                "password": {
+                    "description": "",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Pagination": {
+            "required": [
+                "total",
+                "per_page",
+                "current_page",
+                "last_page",
+                "next_page_url",
+                "last_page_url",
+                "from",
+                "to"
+            ],
+            "properties": {
+                "total": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "per_page": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "current_page": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "last_page": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "next_page_url": {
+                    "description": "",
+                    "type": "string",
+                    "default": "string or null"
+                },
+                "prev_page_url": {
+                    "description": "",
+                    "type": "string",
+                    "default": "string or null"
+                },
+                "from": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "to": {
+                    "description": "",
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "Token": {
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "description": "",
+                    "type": "string"
+                },
+                "user": {
+                    "description": "",
+                    "$ref": "#/definitions/User"
+                }
+            },
+            "type": "object"
+        },
+        "UpdatePassword": {
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "description": "",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "User": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "description": "",
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UserBody"
+                }
+            ]
+        },
+        "UserBody": {
             "required": [
                 "email",
                 "first_name",
@@ -204,45 +969,28 @@
                 }
             },
             "type": "object"
-        },
-        "Token": {
-            "required": [
-                "token"
-            ],
-            "properties": {
-                "token": {
-                    "description": "",
-                    "type": "string"
-                },
-                "user": {
-                    "description": "",
-                    "$ref": "#/definitions/User"
-                }
-            },
-            "type": "object"
-        },
-        "User": {
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "integer"
-                }
-            },
-            "type": "object",
-            "allOf": [
-                {
-                    "$ref": "#/definitions/NewUser"
-                }
-            ]
         }
     },
     "tags": [
         {
             "name": "authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "user",
+            "description": "User"
+        },
+        {
+            "name": "event",
+            "description": "Event"
+        },
+        {
+            "name": "notification",
+            "description": "Notification"
+        },
+        {
+            "name": "image",
+            "description": "Image Resources"
         }
     ]
 }

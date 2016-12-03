@@ -5,63 +5,22 @@ namespace app\swagger\model;
 /**
  * @SWG\Definition(
  *      type="object",
- *      required={"email", "first_name", "last_name", "display_name", "birthdate", "gender", "religion"}
+ *      required={"user", "password"}
  * )
  */
 class NewUser
 {
+
     /**
-     * @SWG\Property
-     * @var string
+     * @SWG\Property(ref="#/definitions/UserBody")
+     * @var UserBody
      */
-    public $email;
+    public $user;
 
     /**
      * @SWG\Property
      * @var string
      */
-    public $first_name;
+    public $password;
 
-    /**
-     * @SWG\Property
-     * @var string
-     */
-    public $last_name;
-
-    /**
-     * @SWG\Property
-     * @var string
-     */
-    public $display_name;
-
-    /**
-     * @SWG\Property(
-     *     type="string",
-     *     format="date"
-     * )
-     * @var \DateTime
-     */
-    public $birthdate;
-
-    /**
-     * @SWG\Property(
-     *     enum={"MALE", "FEMALE"}
-     * )
-     * @var string
-     */
-    public $gender;
-
-    /**
-     * @SWG\Property
-     * @var string
-     */
-    public $religion;
-
-    /**
-     * @SWG\Property(
-     *     maxLength=10
-     * )
-     * @var string
-     */
-    public $phone;
 }

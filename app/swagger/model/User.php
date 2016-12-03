@@ -6,7 +6,7 @@ namespace app\swagger\model;
  * @SWG\Definition(
  *      type="object",
  *      allOf={
- *          @SWG\Items(ref="#/definitions/NewUser")
+ *          @SWG\Items(ref="#/definitions/UserBody")
  *      },
  *      required={"id"}
  * )

@@ -25,13 +25,22 @@ class StoreEventRequest extends FormRequest
     public function rules()
     {
         return [
-            "event.name" => "required",
-            "event.destination" => "required",
-            "event.appointment_place" => "required",
-            "event.start_date" => "required|date_format:Y-m-d H:i:s",
-            "event.end_date" => "required|date_format:Y-m-d H:i:s|after:event.start_date",
-            "event.approximate_cost" => "required",
-            "event.details" => "required",
+            "name" => "required",
+            "destination_place" => "required",
+            "destination_place_id" => "integer",
+            "destination_latitude" => "numeric",
+            "destination_longitude" => "numeric",
+            "start_date" => "required|date_format:Y-m-d H:i:s",
+            "end_date" => "required|date_format:Y-m-d H:i:s|after:start_date",
+            "appointment_place" => "required",
+            "appointment_place_id" => "integer",
+            "appointment_latitude" => "numeric",
+            "appointment_longitude" => "numeric",
+            "appointment_time" => "required|date_format:Y-m-d H:i:s|before:start_date",
+            "details" => "required",
+            "type" => "required",
+            "approximate_cost" => "required|numeric",
+            "settings" => "array"
         ];
     }
 
@@ -43,16 +52,7 @@ class StoreEventRequest extends FormRequest
     public function messages()
     {
         return [
-            "event.name.required" => "event_no_name_given",
-            "event.destination.required" => "event_no_destination_given",
-            "event.appointment_place.required" => "event_no_appoint_place_given",
-            "event.start_date.required" => "event_no_start_date_given",
-            "event.end_date.required" => "event_no_end_date_given",
-            "event.approximate_cost.required" => "event_no_approx_cost_given",
-            "event.details.required" => "event_no_details_given",
-            "event.start_date.date_format" => "event_start_date_invalid_format",
-            "event.end_date.date_format" => "event_end_date_invalid_format",
-            "event.end_date.after" => "event_end_date_must_after_start_date",
+
         ];
     }
 

@@ -88,11 +88,11 @@ class Handler extends ExceptionHandler
      */
     private function handleApi($request, Exception $exception) {
         if($exception instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
-            return response()->json(['token_expired'], $exception->getStatusCode());
+            return response()->json(['message' => 'token_expired'], $exception->getStatusCode());
         } else if($exception instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
-            return response()->json(['token_invalid'], $exception->getStatusCode());
+            return response()->json(['message' => 'token_invalid'], $exception->getStatusCode());
         } else if($exception instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
-            return response()->json(['token_absent'], $exception->getStatusCode());
+            return response()->json(['message' => 'token_absent'], $exception->getStatusCode());
         }
 
         if(env('APP_DEBUG')) {

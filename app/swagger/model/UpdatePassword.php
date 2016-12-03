@@ -4,15 +4,15 @@ namespace app\swagger\model;
 
 /**
  * @SWG\Definition(
- *      type="object",
- *      required={"message"}
+ *     type="object",
+ *     required={"password"}
  * )
  */
-class Error
+class UpdatePassword
 {
     /**
      * @SWG\Property
      * @var string
      */
-    public $message;
+    public $password;
 }

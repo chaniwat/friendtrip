@@ -97,7 +97,8 @@ if (app()->environment() != 'testing') {
                 apisSorter: "alpha",
                 operationsSorter : "alpha",
                 defaultModelRendering: 'schema',
-                showRequestHeaders: false
+                showRequestHeaders: false,
+                validatorUrl: null
             });
 
             function addApiKeyAuthorization(){
@@ -135,7 +136,7 @@ if (app()->environment() != 'testing') {
         <a id="logo" href="http://friendtrip.dev">Friendtrip API Docs</a>
         <form id='api_selector'>
             <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
-            <div class='input'><input placeholder="api_key" id="input_apiKey" name="apiKey" type="text"/></div>
+            <div class='input'><input placeholder="api_key" id="input_apiKey" name="apiKey" type="text" style="display: none;"/></div>
             <div class='input'><a id="explore" href="#" data-sw-translate>Explore</a></div>
         </form>
     </div>
