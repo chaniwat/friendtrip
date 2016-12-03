@@ -8,6 +8,7 @@ use App\Http\Requests;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
+
 class AuthenticateController extends Controller
 {
 
@@ -19,7 +20,37 @@ class AuthenticateController extends Controller
     }
 
     /**
-     * Return the JWT
+     * @SWG\Post(
+     *      path="/authentication",
+     *      summary="Authentication (Request token)",
+     *      tags={"authentication"},
+     *      description="Request token for user auth needed APIs",
+     *      operationId="authentication",
+     *      consumes={"application/json"},
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="body",
+     *          name="body",
+     *          description="User identity information",
+     *          required=true,
+     *          @SWG\Schema(ref="#/definitions/AuthenticationInfo")
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Successful request token",
+     *          @SWG\Schema(ref="#/definitions/Token")
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Invalid credential",
+     *          @SWG\Schema(ref="#/definitions/Error")
+     *      ),
+     *      @SWG\Response(
+     *          response="500",
+     *          description="Internal server error",
+     *          @SWG\Schema(ref="#/definitions/Error")
+     *      )
+     * )
      *
      * @param Requests\Auth\TokenRequest $request
      * @return mixed
@@ -40,7 +71,7 @@ class AuthenticateController extends Controller
         // if no errors are encountered we can return a JWT with authenticate user
         $user = JWTAuth::toUser($token);
 
-        if($request->user) {
+        if($request->get_info) {
             return response()->json(["token" => $token, "user" => $user]);
         } else {
             return response()->json(["token" => $token]);
@@ -48,7 +79,48 @@ class AuthenticateController extends Controller
     }
 
     /**
-     * Return current logged in user
+     * @SWG\Get(
+     *      path="/authentication",
+     *      summary="Get authenticate user information",
+     *      tags={"authentication"},
+     *      description="Get information of given token user information",
+     *      operationId="getAuthUserInfo",
+     *      consumes={"application/json"},
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="header",
+     *          name="Authorization",
+     *          description="JWT-Token",
+     *          type="string",
+     *          default="Bearer ",
+     *          required=true
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Return user information",
+     *          @SWG\Schema(ref="#/definitions/User")
+     *      ),
+     *      @SWG\Response(
+     *          response="400",
+     *          description="Token not provided or invalid",
+     *          @SWG\Schema(ref="#/definitions/Error")
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Token expired",
+     *          @SWG\Schema(ref="#/definitions/Error")
+     *      ),
+     *      @SWG\Response(
+     *          response="404",
+     *          description="User not found",
+     *          @SWG\Schema(ref="#/definitions/Error")
+     *      ),
+     *      @SWG\Response(
+     *          response="500",
+     *          description="Internal server error",
+     *          @SWG\Schema(ref="#/definitions/Error")
+     *      )
+     * )
      *
      * @return mixed
      */

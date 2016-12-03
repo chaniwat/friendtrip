@@ -1,0 +1,248 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Friendtrip",
+        "description": "Friendtrip api document (internal use only)",
+        "contact": {
+            "email": "chaniwat.meranote@gmail.com"
+        },
+        "version": "0.0.1"
+    },
+    "host": "friendtrip.dev",
+    "basePath": "/api",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/authentication": {
+            "get": {
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get authenticate user information",
+                "description": "Get information of given token user information",
+                "operationId": "getAuthUserInfo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "JWT-Token",
+                        "required": true,
+                        "type": "string",
+                        "default": "Bearer "
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return user information",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "description": "Token not provided or invalid",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Token expired",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Authentication (Request token)",
+                "description": "Request token for user auth needed APIs",
+                "operationId": "authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User identity information",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AuthenticationInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request token",
+                        "schema": {
+                            "$ref": "#/definitions/Token"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credential",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "AuthenticationInfo": {
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "description": "",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "",
+                    "type": "string"
+                },
+                "get_info": {
+                    "description": "",
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "type": "object"
+        },
+        "Error": {
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "description": "",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "NewUser": {
+            "required": [
+                "email",
+                "first_name",
+                "last_name",
+                "display_name",
+                "birthdate",
+                "gender",
+                "religion"
+            ],
+            "properties": {
+                "email": {
+                    "description": "",
+                    "type": "string"
+                },
+                "first_name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "last_name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "display_name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "birthdate": {
+                    "description": "",
+                    "type": "string",
+                    "format": "date"
+                },
+                "gender": {
+                    "description": "",
+                    "type": "string",
+                    "enum": [
+                        "MALE",
+                        "FEMALE"
+                    ]
+                },
+                "religion": {
+                    "description": "",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "",
+                    "type": "string",
+                    "maxLength": 10
+                }
+            },
+            "type": "object"
+        },
+        "Token": {
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "description": "",
+                    "type": "string"
+                },
+                "user": {
+                    "description": "",
+                    "$ref": "#/definitions/User"
+                }
+            },
+            "type": "object"
+        },
+        "User": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "description": "",
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NewUser"
+                }
+            ]
+        }
+    },
+    "tags": [
+        {
+            "name": "authentication",
+            "description": "Authentication"
+        }
+    ]
+}
