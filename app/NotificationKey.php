@@ -4,8 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Notification extends Model
+class NotificationKey extends Model
 {
+    public $incrementing = false;
     public $timestamps = false;
 
     /**
@@ -20,14 +21,5 @@ class Notification extends Model
      *
      * @var array
      */
-    protected $hidden = ["user_id"];
-
-    public function user() {
-        return $this->belongsTo('App\User', "user_id", "id");
-    }
-
-    public function key() {
-        return $this->belongsTo('App\NotificationKey', "key_id", "id");
-    }
-
+    protected $hidden = ["id"];
 }

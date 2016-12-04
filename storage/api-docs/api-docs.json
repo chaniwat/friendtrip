@@ -494,6 +494,110 @@
                 }
             }
         },
+        "/events/{event_id}/broadcast": {
+            "post": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Broadcast message",
+                "description": "Broadcast message to any participant",
+                "operationId": "broadcastMessageEvent",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Message to broadcast",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/BroadcastMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Broadcast success"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission (not an owner of event)"
+                    },
+                    "404": {
+                        "description": "No event found"
+                    }
+                }
+            }
+        },
+        "/events/{event_id}/invite": {
+            "post": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Invite user",
+                "description": "Invite user to event",
+                "operationId": "inviteUserEvent",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/EventInviteUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invite success"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid or can't invite"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "No event found"
+                    }
+                }
+            }
+        },
         "/images/event": {
             "post": {
                 "tags": [
@@ -1048,6 +1152,18 @@
             },
             "type": "object"
         },
+        "BroadcastMessage": {
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "description": "",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "Event": {
             "required": [
                 "id"
@@ -1189,6 +1305,18 @@
             },
             "type": "object"
         },
+        "EventInviteUser": {
+            "required": [
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "description": "",
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
         "EventParticipant": {
             "properties": {
                 "joined_at": {
@@ -1287,8 +1415,7 @@
                 },
                 "value": {
                     "description": "",
-                    "type": "string",
-                    "default": "JSON Object as string"
+                    "type": "object"
                 }
             },
             "type": "object",
@@ -1306,7 +1433,12 @@
                 "status": {
                     "description": "",
                     "type": "string",
-                    "default": "status"
+                    "default": "status",
+                    "enum": [
+                        "NOT_READ",
+                        "READ",
+                        "REMOVED"
+                    ]
                 }
             },
             "type": "object"

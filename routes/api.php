@@ -40,6 +40,8 @@ Route::get('events/{id}/participants', 'Api\EventController@getParticipants')->n
 Route::post('events/{id}/join', 'Api\EventController@joinEvent')->name('api.event.join');
 Route::post('events/{id}/leave', 'Api\EventController@leaveEvent')->name('api.event.leave');
 Route::post('events/{id}/cancel', 'Api\EventController@cancelEvent')->name('api.event.cancel');
+Route::post('events/{id}/broadcast', 'Api\EventController@broadcastMessage')->name('api.event.broadcast');
+Route::post('events/{id}/invite', 'Api\EventController@inviteUser')->name('api.event.invite');
 Route::resource('events', 'Api\EventController', ["only" => ["index", "store", "show", "update"], "names" => [
     "index" => "api.event.index",
     "store" => "api.event.store",

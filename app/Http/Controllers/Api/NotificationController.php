@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class NotificationController extends Controller
 {
@@ -55,7 +57,21 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        // TODO get all notifications
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        $notifications = $current_user->notifications()->where("status", "<>", "REMOVED")->paginate(7);
+        $notificationArray = [];
+
+        foreach($notifications as $notification) {
+            $notification->value = json_decode($notification->value);
+
+            array_push($notificationArray, $notification);
+        }
+
+        $pagination = $notifications->toArray();
+        unset($pagination['data']);
+
+        return response()->json(["notifications" => $notificationArray, "pagination" => $pagination]);
     }
 
     /**
@@ -115,7 +131,20 @@ class NotificationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // TODO finish update notification status
+        if(!$target_notification = Notification::find($id)) {
+            return response()->json(["message" => "notification_not_found"], 404);
+        }
+
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        if($current_user->id != $target_notification->user->id) {
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        $target_notification->status = $request->input("status");
+        $target_notification->save();
+
+        return response()->json(null);
     }
 
     /**
@@ -163,6 +192,19 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        // TODO finish remove notification
+        if(!$target_notification = Notification::find($id)) {
+            return response()->json(["message" => "notification_not_found"], 404);
+        }
+
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        if($current_user->id != $target_notification->user->id) {
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        $target_notification->status = "REMOVED";
+        $target_notification->save();
+
+        return response()->json(null);
     }
 }

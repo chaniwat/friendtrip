@@ -18,7 +18,8 @@ class NotificationStatus
 {
     /**
      * @SWG\Property(
-     *     default="status"
+     *     default="status",
+     *     enum={"NOT_READ", "READ", "REMOVED"}
      * )
      * @var string
      */

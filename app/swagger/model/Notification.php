@@ -28,10 +28,8 @@ class Notification
     public $key_id;
 
     /**
-     * @SWG\Property(
-     *     default="JSON Object as string"
-     * )
-     * @var string
+     * @SWG\Property
+     * @var object
      */
     public $value;
 }

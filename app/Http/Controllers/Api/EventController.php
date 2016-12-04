@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Event;
+use App\EventOverview;
 use App\EventSetting;
 use App\EventType;
 
+use App\Notification;
+use App\NotificationKey;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -185,13 +189,34 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        // TODO finish all query parameters in get all events (full_event(filter), type(filter), search, place)
+        DB::statement("SET SESSION sql_mode = '';");
 
-        $events = Event::paginate($request->input('show_per_page') ? $request->input('show_per_page') : 10);
+        $eventOverview = EventOverview::whereNotNull("id");
+
+        if($request->input("type")) {
+            $eventOverview = $eventOverview->where("type", $request->input("type"));
+        }
+
+        if($request->input("full_event") == "false") {
+            $eventOverview = $eventOverview->where(function($query) {
+                $query->whereColumn("participant_join_count", "<", "max_participant")
+                    ->orWhere("max_participant", 0);
+            });
+        }
+
+        if($request->input("search")) {
+            $eventOverview = $eventOverview->where("name", "LIKE", "%".$request->input("search")."%");
+        } else if($request->input("place")) {
+            $eventOverview = $eventOverview->where("destination_place", "LIKE", "%".$request->input("place")."%");
+        }
+
+        $events = $eventOverview->paginate($request->get('show_per_page', 10));
         $eventsArray = [];
 
+        DB::statement("SET SESSION sql_mode = 'ONLY_FULL_GROUP_BY';");
+
         foreach($events as $event) {
-            array_push($eventsArray, EventController::extractEventData($event));
+            array_push($eventsArray, EventController::extractEventData(Event::find($event->id)));
         }
 
         $pagination = $events->toArray();
@@ -382,6 +407,8 @@ class EventController extends Controller
             return response()->json(["message" => "no_permission"], 401);
         }
 
+        $oldEvent = $target_event->replicate();
+
         foreach($request->all() as $key => $value) {
             if(in_array($key, ["id", "owner_id", "destination_place", "destination_place_id", "destination_latitude", "destination_longitude", "status", "created_at", "updated_at"])) {
                 continue;
@@ -391,6 +418,49 @@ class EventController extends Controller
         }
 
         $target_event->save();
+
+        $alertUpdateField = $request->only(["name", "start_date", "end_date", "appointment_place", "appointment_time"]);
+        $participants = $target_event->participants()->where('status', 'JOIN')->get();
+
+        if($alertUpdateField["name"] && $oldEvent->name != $target_event->name) {
+            foreach($participants as $participant) {
+                $notification = new Notification();
+                $notification->value = json_encode(["event_id" => $id, "old" => $oldEvent->name, "new" => $target_event->name]);
+                $notification->user()->associate($participant);
+                $notification->key()->associate(NotificationKey::find("EVENT_NAME_CHANGE"));
+                $notification->save();
+            }
+        }
+
+        if(($alertUpdateField["start_date"] && $oldEvent->start_date != $target_event->start_date) ||
+            ($alertUpdateField["end_date"] && $oldEvent->end_date != $target_event->end_date)) {
+            foreach($participants as $participant) {
+                $notification = new Notification();
+                $notification->value = json_encode(["event_id" => $id]);
+                $notification->user()->associate($participant);
+                $notification->key()->associate(NotificationKey::find("EVENT_TIME_CHANGE"));
+                $notification->save();
+            }
+        }
+
+        if($alertUpdateField["appointment_place"] && $oldEvent->appointment_place != $target_event->appointment_place) {
+            foreach($participants as $participant) {
+                $notification = new Notification();
+                $notification->value = json_encode(["event_id" => $id, "old" => $oldEvent->appointment_place, "new" => $target_event->appointment_place]);
+                $notification->user()->associate($participant);
+                $notification->key()->associate(NotificationKey::find("EVENT_APPOINTMENT_PLACE_CHANGE"));
+                $notification->save();
+            }
+        }
+        if($alertUpdateField["appointment_time"] && $oldEvent->appointment_time != $target_event->appointment_time) {
+            foreach($participants as $participant) {
+                $notification = new Notification();
+                $notification->value = json_encode(["event_id" => $id, "old" => $oldEvent->appointment_time, "new" => $target_event->appointment_time]);
+                $notification->user()->associate($participant);
+                $notification->key()->associate(NotificationKey::find("EVENT_APPOINTMENT_TIME_CHANGE"));
+                $notification->save();
+            }
+        }
 
         return response()->json(null, 200);
     }
@@ -477,7 +547,44 @@ class EventController extends Controller
             return response()->json(["message" => "event_full"], 400);
         }
 
-        // TODO Check another setting with current user (ALLOW_AGE, ALLOW_GENDER, ALLOW_RELIGION)
+        // Check age
+        if($allowAge = $target_event->settings()->find('ALLOW_AGE')) {
+            // Bypass * (if not then check allow age)
+            if($allowAge->pivot->value != "*") {
+                $userAge = Carbon::parse($current_user->birthdate)->diffInYears(Carbon::now());
+                $allowAgeArray = explode("-", $allowAge->pivot->value);
+
+                if(!($userAge >= $allowAgeArray[0] && $userAge <= $allowAgeArray[1])) {
+                    return response()->json(["message" => "age_not_allow"], 401);
+                }
+            }
+        }
+
+        // Check gender
+        if($allowGender = $target_event->settings()->find('ALLOW_GENDER')) {
+            // Bypass * (if not then check allow age)
+            if($allowGender->pivot->value != "*") {
+                $userGender = $current_user->gender;
+                $allowGenderArray = explode(",", $allowGender->pivot->value);
+
+                if(!in_array($userGender, $allowGenderArray)) {
+                    return response()->json(["message" => "gender_not_allow"], 401);
+                }
+            }
+        }
+
+        // Check religion
+        if($allowReligion = $target_event->settings()->find('ALLOW_RELIGION')) {
+            // Bypass * (if not then check allow age)
+            if($allowReligion->pivot->value != "*") {
+                $userReligion = $current_user->religion;
+                $allowReligionArray = explode(",", $allowReligion->pivot->value);
+
+                if(!in_array($userReligion, $allowReligionArray)) {
+                    return response()->json(["message" => "religion_not_allow"], 401);
+                }
+            }
+        }
 
         // Join event
         if($participate) {
@@ -643,6 +750,18 @@ class EventController extends Controller
         $target_event->status = "CANCEL";
         $target_event->save();
 
+        $participants = $target_event->participants()->where('status', 'JOIN')->get();
+
+        foreach($participants as $participant) {
+            $notification = new Notification();
+            $notification->value = json_encode(["event_id" => $id]);
+            $notification->user()->associate($participant);
+            $notification->key()->associate(NotificationKey::find("EVENT_CANCEL"));
+            $notification->save();
+
+            $target_event->participants()->updateExistingPivot($participant->id, ["status" => "KICK"]);
+        }
+
         return response()->json(null, 200);
     }
 
@@ -719,6 +838,152 @@ class EventController extends Controller
         unset($pagination['data']);
 
         return response()->json(["participants" => $participantsArray, "pagination" => $pagination]);
+    }
+
+    /**
+     * @SWG\Post(
+     *      path="/events/{event_id}/broadcast",
+     *      summary="Broadcast message",
+     *      tags={"event"},
+     *      description="Broadcast message to any participant",
+     *      operationId="broadcastMessageEvent",
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="header",
+     *          name="Authorization",
+     *          description="Token",
+     *          type="string",
+     *          default="Bearer ",
+     *      ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="event_id",
+     *          description="Event ID",
+     *          type="integer",
+     *          required=true
+     *      ),
+     *      @SWG\Parameter(
+     *          in="body",
+     *          name="body",
+     *          description="Message to broadcast",
+     *          required=true,
+     *          @SWG\Schema(ref="#/definitions/BroadcastMessage")
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Broadcast success"
+     *      ),
+     *      @SWG\Response(
+     *          response="400",
+     *          description="No token provided or invalid"
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Token expired or no permission (not an owner of event)"
+     *      ),
+     *      @SWG\Response(
+     *          response="404",
+     *          description="No event found"
+     *      )
+     * )
+     *
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function broadcastMessage(Request $request, $id) {
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        // Check is owner of event
+        $current_user = JWTAuth::parseToken()->authenticate();
+        if(!$current_user->admin && $current_user->id != $target_event->owner->id) {
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        $participants = $target_event->participants()->where('status', 'JOIN')->get();
+
+        foreach($participants as $participant) {
+            $notification = new Notification();
+            $notification->value = json_encode(["event_id" => $id, "message" => $request->input("message")]);
+            $notification->user()->associate($participant);
+            $notification->key()->associate(NotificationKey::find("EVENT_MSG_BROADCAST"));
+            $notification->save();
+        }
+
+        return response()->json(null, 200);
+    }
+
+    /**
+     * @SWG\Post(
+     *      path="/events/{event_id}/invite",
+     *      summary="Invite user",
+     *      tags={"event"},
+     *      description="Invite user to event",
+     *      operationId="inviteUserEvent",
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="header",
+     *          name="Authorization",
+     *          description="Token",
+     *          type="string",
+     *          default="Bearer ",
+     *      ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="event_id",
+     *          description="Event ID",
+     *          type="integer",
+     *          required=true
+     *      ),
+     *      @SWG\Parameter(
+     *          in="body",
+     *          name="body",
+     *          description="User ID",
+     *          required=true,
+     *          @SWG\Schema(ref="#/definitions/EventInviteUser")
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Invite success"
+     *      ),
+     *      @SWG\Response(
+     *          response="400",
+     *          description="No token provided or invalid or can't invite"
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Token expired"
+     *      ),
+     *      @SWG\Response(
+     *          response="404",
+     *          description="No event found"
+     *      )
+     * )
+     *
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function inviteUser(Request $request, $id) {
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        if(!$target_user = User::find($request->input("user_id"))) {
+            return response()->json(["message" => "user_not_found"], 404);
+        }
+
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        $notification = new Notification();
+        $notification->value = json_encode(["event_id" => $id, "by_user_id" => $current_user->id]);
+        $notification->user()->associate($target_user);
+        $notification->key()->associate(NotificationKey::find("EVENT_INVITE"));
+        $notification->save();
+
+        return response()->json(null, 200);
     }
 
 }
