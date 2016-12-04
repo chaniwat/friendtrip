@@ -9,8 +9,8 @@ use App\User;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use League\Flysystem\Exception;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -21,7 +21,7 @@ class UserController extends Controller
         // Apply the jwt.auth middleware to all methods in this controller
         // except for the authenticate method. We don't want to prevent
         // the user from retrieving their token if they don't already have it
-        $this->middleware('jwt.auth', ['except' => ['store', 'show']]);
+        $this->middleware('jwt.auth', ['except' => ['store', 'show', 'getOwnedEvents', 'getJoinedEvents']]);
     }
 
     /**
@@ -187,9 +187,7 @@ class UserController extends Controller
 
         $current_user = JWTAuth::parseToken()->authenticate();
 
-        if($current_user->id != $target_user->id) {
-            // TODO check admin
-
+        if(!$current_user->admin && $current_user->id != $target_user->id) {
             return response()->json(["message" => "no_permission"], 401);
         }
 
@@ -265,9 +263,7 @@ class UserController extends Controller
 
         $current_user = JWTAuth::parseToken()->authenticate();
 
-        if($current_user->id != $target_user->id) {
-            // TODO check admin
-
+        if(!$current_user->admin && $current_user->id != $target_user->id) {
             return response()->json(["message" => "no_permission"], 401);
         }
 
@@ -278,11 +274,153 @@ class UserController extends Controller
         return response()->json(null, 200);
     }
 
-    public function getOwnedEvent() {
-        // TODO get user owned event list (owner of events) ["users/{user_id}/events/owned"]
+    /**
+     * @SWG\Get(
+     *      path="/users/{user_id}/events/owned",
+     *      summary="Get user owned event list",
+     *      tags={"user"},
+     *      description="Get owned event list of user {user_id} (Need authentication token for some detail)",
+     *      operationId="getUserOwnedEventList",
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="header",
+     *          name="Authorization",
+     *          description="Token",
+     *          type="string",
+     *          default="Bearer ",
+     *      ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="user_id",
+     *          description="User ID",
+     *          type="integer",
+     *          required=true
+     *      ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="show_per_page",
+     *          description="Set show events per page",
+     *          type="integer"
+     *      ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="page",
+     *          description="Pagination page",
+     *          type="integer"
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Return owned event list",
+     *          @SWG\Schema(ref="#/definitions/AllEvents")
+     *      ),
+     *      @SWG\Response(
+     *          response="400",
+     *          description="Invalid token"
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Token expired"
+     *      ),
+     *      @SWG\Response(
+     *          response="404",
+     *          description="User not found"
+     *      )
+     * )
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getOwnedEvents(Request $request, $id) {
+        if(!$target_user = User::find($id)) {
+            return response()->json(["message" => "user_not_found"], 404);
+        }
+
+        $events = $target_user->owned()->paginate($request->input('show_per_page') ? $request->input('show_per_page') : 10);
+        $eventsArray = [];
+
+        foreach($events as $event) {
+            array_push($eventsArray, EventController::extractEventData($event));
+        }
+
+        $pagination = $events->toArray();
+        unset($pagination['data']);
+
+        return response()->json(["events" => $eventsArray, "pagination" => $pagination]);
     }
 
-    public function getJoinedEvent() {
-        // TODO get user joined event list (join and event has success finished) ["users/{user_id}/events/joined"]
+    /**
+     * @SWG\Get(
+     *      path="/users/{user_id}/events/joined",
+     *      summary="Get user joined event list",
+     *      tags={"user"},
+     *      description="Get joined event list of user {user_id} (Need authentication token for some detail)",
+     *      operationId="getUserJoinedEventList",
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="header",
+     *          name="Authorization",
+     *          description="Token",
+     *          type="string",
+     *          default="Bearer ",
+     *      ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="user_id",
+     *          description="User ID",
+     *          type="integer",
+     *          required=true
+     *      ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="show_per_page",
+     *          description="Set show events per page",
+     *          type="integer"
+     *      ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="page",
+     *          description="Pagination page",
+     *          type="integer"
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Return joined event list",
+     *          @SWG\Schema(ref="#/definitions/AllEvents")
+     *      ),
+     *      @SWG\Response(
+     *          response="400",
+     *          description="Invalid token"
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Token expired"
+     *      ),
+     *      @SWG\Response(
+     *          response="404",
+     *          description="User not found"
+     *      )
+     * )
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getJoinedEvents(Request $request, $id) {
+        if(!$target_user = User::find($id)) {
+            return response()->json(["message" => "user_not_found"], 404);
+        }
+
+        $events = $target_user->joined()->paginate($request->input('show_per_page') ? $request->input('show_per_page') : 10);
+        $eventsArray = [];
+
+        foreach($events as $event) {
+            array_push($eventsArray, EventController::extractEventData($event));
+        }
+
+        $pagination = $events->toArray();
+        unset($pagination['data']);
+
+        return response()->json(["events" => $eventsArray, "pagination" => $pagination]);
     }
 }

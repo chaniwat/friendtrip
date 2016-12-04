@@ -111,11 +111,28 @@ class EventBody
 
     /**
      * @SWG\Property(
+     *     type="string",
+     *     default="yyyy-MM-dd hh:mm:ss"
+     * )
+     * @var \DateTime
+     */
+    public $created_at;
+
+    /**
+     * @SWG\Property(
+     *     type="string",
+     *     default="yyyy-MM-dd hh:mm:ss"
+     * )
+     * @var \DateTime
+     */
+    public $updated_at;
+
+    /**
+     * @SWG\Property(
      *     type="array",
      *     @SWG\Items(ref="#/definitions/EventSetting")
      * )
      * @var array
      */
     public $settings;
-
 }

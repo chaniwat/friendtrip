@@ -64,4 +64,12 @@ class UserBody
      * @var string
      */
     public $phone;
+
+    /**
+     * @SWG\Property(
+     *     default=false
+     * )
+     * @var boolean
+     */
+    public $admin;
 }

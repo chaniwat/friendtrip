@@ -6,6 +6,8 @@ use App\Event;
 use App\EventSetting;
 use App\EventType;
 
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
@@ -18,7 +20,7 @@ class EventController extends Controller
         // Apply the jwt.auth middleware to all methods in this controller
         // except for the authenticate method. We don't want to prevent
         // the user from retrieving their token if they don't already have it
-        $this->middleware('jwt.auth', ['except' => ['index', 'show', 'getTypes']]);
+        $this->middleware('jwt.auth', ['except' => ['index', 'show', 'getTypes', 'getParticipants']]);
     }
 
     /**
@@ -28,7 +30,7 @@ class EventController extends Controller
      * @return array
      * @throws \Exception
      */
-    protected function extractEventData(Event $event) {
+    public static function extractEventData(Event $event) {
         $eventArray = $event->toArray();
 
         // Extract event settings
@@ -70,6 +72,46 @@ class EventController extends Controller
         $eventArray['participant_count'] = $event->participants()->where('status', 'JOIN')->count();
 
         return $eventArray;
+    }
+
+    /**
+     * Extract event data for sending in api
+     *
+     * @param User $participant
+     * @return array
+     * @throws \Exception
+     */
+    public static function extractParticipantData(User $participant) {
+        $participantArray = [];
+
+        // Check if user has authenticated (show strict user info)
+        try {
+            if($user = JWTAuth::parseToken()->authenticate()) {
+                $participantArray = $participant->toArray();
+                unset($participantArray['pivot']);
+            }
+        } catch (\Exception $e) {
+            if ($e instanceof TokenExpiredException) {
+                throw($e);
+            } else if($e instanceof TokenInvalidException) {
+                throw($e);
+            } else if($e instanceof JWTException) {
+                $participantArray = $participant->makeHidden(['email', 'birthdate', 'religion', 'phone'])->toArray();
+                unset($participantArray['pivot']);
+            } else {
+                throw($e);
+            }
+        }
+
+        // Extract participant status
+        $participantArray['status'] = $participant->pivot->status;
+
+        if($participantArray['status'] == "JOIN") {
+            $participantArray['joined_at'] = $participant->pivot->joined_at;
+            $participantArray['staff'] = $participant->pivot->staff;
+        }
+
+        return $participantArray;
     }
 
     /**
@@ -149,7 +191,7 @@ class EventController extends Controller
         $eventsArray = [];
 
         foreach($events as $event) {
-            array_push($eventsArray, $this->extractEventData($event));
+            array_push($eventsArray, EventController::extractEventData($event));
         }
 
         $pagination = $events->toArray();
@@ -271,7 +313,7 @@ class EventController extends Controller
             return response()->json(['message' => 'event_not_found'], 404);
         }
 
-        $eventArray = $this->extractEventData($event);
+        $eventArray = EventController::extractEventData($event);
 
         return response()->json($eventArray);
     }
@@ -324,13 +366,33 @@ class EventController extends Controller
      *      )
      * )
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        // TODO finish update event
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        if(!$current_user->admin && $current_user->id != $target_event->owner->id) {
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        foreach($request->all() as $key => $value) {
+            if(in_array($key, ["id", "owner_id", "destination_place", "destination_place_id", "destination_latitude", "destination_longitude", "status", "created_at", "updated_at"])) {
+                continue;
+            }
+
+            $target_event[$key] = $value;
+        }
+
+        $target_event->save();
+
+        return response()->json(null, 200);
     }
 
     /**
@@ -361,7 +423,7 @@ class EventController extends Controller
      *      ),
      *      @SWG\Response(
      *          response="400",
-     *          description="No token provided or invalid"
+     *          description="No token provided or invalid or can't join event"
      *      ),
      *      @SWG\Response(
      *          response="401",
@@ -373,11 +435,60 @@ class EventController extends Controller
      *      )
      * )
      *
-     * @param Request $request
      * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function joinEvent(Request $request, $id) {
-        // TODO finish join event
+    public function joinEvent($id)
+    {
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        // Check is event already cancel
+        if($target_event->status == "CANCEL") {
+            return response()->json(["message" => "event_already_cancel"], 400);
+        }
+
+        // Check event time
+        $startTime = Carbon::parse($target_event->start_date);
+        $endTime = Carbon::parse($target_event->end_date);
+
+        if($endTime->isPast()) {
+            return response()->json(["message" => "event_already_finished"], 400);
+        } else if($startTime->isPast()) {
+            return response()->json(["message" => "event_already_started"], 400);
+        }
+
+        // Check joined own event
+        $current_user = JWTAuth::parseToken()->authenticate();
+        if(!$current_user->admin && $current_user->id == $target_event->owner->id) {
+            return response()->json(["message" => "cannot_join_owned_event"], 400);
+        }
+
+        // Check already joined?
+        $participate = $target_event->participants()->where('id', $current_user->id)->first();
+        if($participate && $participate->pivot->status == "JOIN") {
+            return response()->json(["message" => "already_joined"], 400);
+        }
+
+        // Check full participant
+        $maxParticipant = $target_event->settings->find("MAX_PARTICIPANT");
+        if($maxParticipant && $maxParticipant->pivot->value != 0 && $target_event->participants()->where('status', 'JOIN')->count() == $maxParticipant->pivot->value) {
+            return response()->json(["message" => "event_full"], 400);
+        }
+
+        // TODO Check another setting with current user (ALLOW_AGE, ALLOW_GENDER, ALLOW_RELIGION)
+
+        // Join event
+        if($participate) {
+            // update pivot if has been joined in past
+            $target_event->participants()->updateExistingPivot($current_user->id, ['status' => 'JOIN']);
+        } else {
+            // attach if not join by first
+            $target_event->participants()->attach($current_user);
+        }
+
+        return response()->json(null, 200);
     }
 
     /**
@@ -408,7 +519,7 @@ class EventController extends Controller
      *      ),
      *      @SWG\Response(
      *          response="400",
-     *          description="No token provided or invalid"
+     *          description="No token provided or invalid or can't leave event"
      *      ),
      *      @SWG\Response(
      *          response="401",
@@ -420,11 +531,42 @@ class EventController extends Controller
      *      )
      * )
      *
-     * @param Request $request
      * @param $id
+     * @return \Illuminate\Http\Response
      */
-    public function leaveEvent(Request $request, $id) {
-        // TODO finish leave event
+    public function leaveEvent($id)
+    {
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        // Check is event already cancel
+        if($target_event->status == "CANCEL") {
+            return response()->json(["message" => "event_already_cancel"], 400);
+        }
+
+        // Check is joined event?
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        $participate = $target_event->participants()->where('id', $current_user->id)->first();
+        if($participate && $participate->pivot->status != "JOIN") {
+            return response()->json(["message" => "not_joined"], 400);
+        }
+
+        // Check event time
+        $startTime = Carbon::parse($target_event->start_date);
+        $endTime = Carbon::parse($target_event->end_date);
+
+        if($endTime->isPast()) {
+            return response()->json(["message" => "event_already_finished"], 400);
+        } else if($startTime->isPast()) {
+            return response()->json(["message" => "event_already_started"], 400);
+        }
+
+        // leave event (save pivot status)
+        $target_event->participants()->updateExistingPivot($current_user->id, ['status' => 'LEAVE']);
+
+        return response()->json(null, 200);
     }
 
     /**
@@ -455,7 +597,7 @@ class EventController extends Controller
      *      ),
      *      @SWG\Response(
      *          response="400",
-     *          description="No token provided or invalid"
+     *          description="No token provided or invalid or can't cancel event"
      *      ),
      *      @SWG\Response(
      *          response="401",
@@ -467,10 +609,116 @@ class EventController extends Controller
      *      )
      * )
      *
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cancelEvent($id)
+    {
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        // Check is owner of event
+        $current_user = JWTAuth::parseToken()->authenticate();
+        if(!$current_user->admin && $current_user->id != $target_event->owner->id) {
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        // Check is event already cancel
+        if($target_event->status == "CANCEL") {
+            return response()->json(["message" => "event_already_cancel"], 400);
+        }
+
+        // Check event time
+        $startTime = Carbon::parse($target_event->start_date);
+        $endTime = Carbon::parse($target_event->end_date);
+
+        if($endTime->isPast()) {
+            return response()->json(["message" => "event_already_finished"], 400);
+        } else if($startTime->isPast()) {
+            return response()->json(["message" => "event_already_started"], 400);
+        }
+
+        // cancel event
+        $target_event->status = "CANCEL";
+        $target_event->save();
+
+        return response()->json(null, 200);
+    }
+
+    /**
+     * @SWG\Get(
+     *      path="/events/{event_id}/participants",
+     *      summary="Get participant list",
+     *      tags={"event"},
+     *      description="Get participant list of event {event_id} (Need authentication token for some detail)",
+     *      operationId="getEventParticipantList",
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          in="header",
+     *          name="Authorization",
+     *          description="Token",
+     *          type="string",
+     *          default="Bearer ",
+     *      ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="event_id",
+     *          description="Event ID",
+     *          type="integer",
+     *          required=true
+     *      ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="show_per_page",
+     *          description="Set show events per page",
+     *          type="integer"
+     *      ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="page",
+     *          description="Pagination page",
+     *          type="integer"
+     *      ),
+     *      @SWG\Response(
+     *          response="200",
+     *          description="Return participant list",
+     *          @SWG\Schema(ref="#/definitions/EventParticipants")
+     *      ),
+     *      @SWG\Response(
+     *          response="400",
+     *          description="Invalid token"
+     *      ),
+     *      @SWG\Response(
+     *          response="401",
+     *          description="Token expired"
+     *      ),
+     *      @SWG\Response(
+     *          response="404",
+     *          description="User not found"
+     *      )
+     * )
+     *
      * @param Request $request
      * @param $id
+     * @return \Illuminate\Http\Response
      */
-    public function cancelEvent(Request $request, $id) {
-        // TODO change to delete method (for cancel event)
+    public function getParticipants(Request $request, $id) {
+        if(!$target_event = Event::find($id)) {
+            return response()->json(["message" => "event_not_found"], 404);
+        }
+
+        $participants = $target_event->participants()->paginate($request->input('show_per_page') ? $request->input('show_per_page') : 10);
+        $participantsArray = [];
+
+        foreach($participants as $participant) {
+            array_push($participantsArray, EventController::extractParticipantData($participant));
+        }
+
+        $pagination = $participants->toArray();
+        unset($pagination['data']);
+
+        return response()->json(["participants" => $participantsArray, "pagination" => $pagination]);
     }
+
 }

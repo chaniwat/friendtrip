@@ -30,14 +30,14 @@ class User extends Authenticatable
     /**
      * Get all events that create by this user
      */
-    public function owns() {
+    public function owned() {
         return $this->hasMany('App\Event', 'owner_id', 'id');
     }
 
     /**
-     * Get all event this user participate (joined or leave)
+     * Get all event this user joined (joined or leave)
      */
-    public function participates() {
+    public function joined() {
         return $this->belongsToMany('App\Event', 'event_join_user', 'user_id', 'event_id')->withPivot('joined_at', 'status', 'staff');
     }
 

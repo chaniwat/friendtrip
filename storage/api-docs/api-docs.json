@@ -339,7 +339,7 @@
                         "description": "Join event success"
                     },
                     "400": {
-                        "description": "No token provided or invalid"
+                        "description": "No token provided or invalid or can't join event"
                     },
                     "401": {
                         "description": "Token expired"
@@ -382,7 +382,7 @@
                         "description": "leave event success"
                     },
                     "400": {
-                        "description": "No token provided or invalid"
+                        "description": "No token provided or invalid or can't leave event"
                     },
                     "401": {
                         "description": "Token expired"
@@ -425,13 +425,71 @@
                         "description": "cancel event success"
                     },
                     "400": {
-                        "description": "No token provided or invalid"
+                        "description": "No token provided or invalid or can't cancel event"
                     },
                     "401": {
                         "description": "Token expired or no permission (not an owner of event)"
                     },
                     "404": {
                         "description": "No event found"
+                    }
+                }
+            }
+        },
+        "/events/{event_id}/participants": {
+            "get": {
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get participant list",
+                "description": "Get participant list of event {event_id} (Need authentication token for some detail)",
+                "operationId": "getEventParticipantList",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "show_per_page",
+                        "in": "query",
+                        "description": "Set show events per page",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Pagination page",
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return participant list",
+                        "schema": {
+                            "$ref": "#/definitions/EventParticipants"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "User not found"
                     }
                 }
             }
@@ -809,6 +867,122 @@
                     }
                 }
             }
+        },
+        "/users/{user_id}/events/owned": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user owned event list",
+                "description": "Get owned event list of user {user_id} (Need authentication token for some detail)",
+                "operationId": "getUserOwnedEventList",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "show_per_page",
+                        "in": "query",
+                        "description": "Set show events per page",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Pagination page",
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return owned event list",
+                        "schema": {
+                            "$ref": "#/definitions/AllEvents"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/events/joined": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user joined event list",
+                "description": "Get joined event list of user {user_id} (Need authentication token for some detail)",
+                "operationId": "getUserJoinedEventList",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "show_per_page",
+                        "in": "query",
+                        "description": "Set show events per page",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Pagination page",
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return joined event list",
+                        "schema": {
+                            "$ref": "#/definitions/AllEvents"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -895,6 +1069,15 @@
                     "description": "",
                     "type": "string",
                     "default": "owner or boolean (true = join, false = not join yet) | if sent token for checking status"
+                },
+                "joined_at": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
+                "staff": {
+                    "description": "",
+                    "type": "boolean"
                 }
             },
             "type": "object",
@@ -986,12 +1169,67 @@
                     "type": "number",
                     "format": "double"
                 },
+                "created_at": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
+                "updated_at": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
                 "settings": {
                     "description": "",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/EventSetting"
                     }
+                }
+            },
+            "type": "object"
+        },
+        "EventParticipant": {
+            "properties": {
+                "joined_at": {
+                    "description": "",
+                    "type": "string",
+                    "default": "yyyy-MM-dd hh:mm:ss"
+                },
+                "status": {
+                    "description": "",
+                    "type": "string",
+                    "enum": [
+                        "JOIN",
+                        "LEAVE",
+                        "KICK"
+                    ]
+                },
+                "staff": {
+                    "description": "",
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/User"
+                }
+            ]
+        },
+        "EventParticipants": {
+            "properties": {
+                "participants": {
+                    "description": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/EventParticipant"
+                    }
+                },
+                "pagination": {
+                    "description": "",
+                    "$ref": "#/definitions/Pagination"
                 }
             },
             "type": "object"
@@ -1215,6 +1453,11 @@
                     "description": "",
                     "type": "string",
                     "maxLength": 10
+                },
+                "admin": {
+                    "description": "",
+                    "type": "boolean",
+                    "default": false
                 }
             },
             "type": "object"

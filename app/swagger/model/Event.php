@@ -38,4 +38,19 @@ class Event
      * @var string
      */
     public $join_status;
+
+    /**
+     * @SWG\Property(
+     *     type="string",
+     *     default="yyyy-MM-dd hh:mm:ss"
+     * )
+     * @var \DateTime
+     */
+    public $joined_at;
+
+    /**
+     * @SWG\Property
+     * @var boolean
+     */
+    public $staff;
 }

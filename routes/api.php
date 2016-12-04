@@ -24,6 +24,8 @@ Route::resource('authentication', 'Api\AuthenticateController', ["only" => ["ind
 /**
  * User model route
  */
+Route::get('users/{id}/events/owned', 'Api\UserController@getOwnedEvents')->name('api.user.event.owned');
+Route::get('users/{id}/events/joined', 'Api\UserController@getJoinedEvents')->name('api.user.event.joined');
 Route::put('users/{id}/password', 'Api\UserController@updatePassword')->name('api.user.password.update');
 Route::resource('users', 'Api\UserController', ["only" => ["store", "show", "update"], "names" => [
     "store" => "api.user.store",
@@ -34,10 +36,10 @@ Route::resource('users', 'Api\UserController', ["only" => ["store", "show", "upd
 /**
  * Event model route
  */
+Route::get('events/{id}/participants', 'Api\EventController@getParticipants')->name('api.event.participants');
 Route::post('events/{id}/join', 'Api\EventController@joinEvent')->name('api.event.join');
 Route::post('events/{id}/leave', 'Api\EventController@leaveEvent')->name('api.event.leave');
 Route::post('events/{id}/cancel', 'Api\EventController@cancelEvent')->name('api.event.cancel');
-Route::get('events/types', 'Api\EventController@getTypes')->name('api.event.types');
 Route::resource('events', 'Api\EventController', ["only" => ["index", "store", "show", "update"], "names" => [
     "index" => "api.event.index",
     "store" => "api.event.store",
