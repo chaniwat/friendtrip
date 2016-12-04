@@ -143,6 +143,8 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
+        // TODO finish all query parameters in get all events (full_event(filter), type(filter), search, place)
+
         $events = Event::paginate($request->input('show_per_page') ? $request->input('show_per_page') : 10);
         $eventsArray = [];
 
@@ -328,7 +330,7 @@ class EventController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return response()->json(null);
+        // TODO finish update event
     }
 
     /**
@@ -375,7 +377,7 @@ class EventController extends Controller
      * @param $id
      */
     public function joinEvent(Request $request, $id) {
-
+        // TODO finish join event
     }
 
     /**
@@ -422,7 +424,7 @@ class EventController extends Controller
      * @param $id
      */
     public function leaveEvent(Request $request, $id) {
-
+        // TODO finish leave event
     }
 
     /**
@@ -469,6 +471,6 @@ class EventController extends Controller
      * @param $id
      */
     public function cancelEvent(Request $request, $id) {
-
+        // TODO change to delete method (for cancel event)
     }
 }

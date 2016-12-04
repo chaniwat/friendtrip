@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdatePasswordRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\User;
 
 use App\Http\Requests;
@@ -47,13 +50,12 @@ class UserController extends Controller
      *      )
      * )
      *
-     * @param Requests\User\StoreUserRequest $request
+     * @param StoreUserRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Requests\User\StoreUserRequest $request) {
+    public function store(StoreUserRequest $request) {
         $user = new User($request->user);
         $user->password = Hash::make($request->password);
-
         $user->save();
 
         return response()->json(null, 201);
@@ -105,9 +107,7 @@ class UserController extends Controller
      * @throws \Exception
      */
     public function show($id) {
-        $user = User::find($id);
-
-        if(!$user) {
+        if(!$user = User::find($id)) {
             return response()->json(["message" => "user_not_found"], 404);
         }
 
@@ -176,12 +176,33 @@ class UserController extends Controller
      *      )
      * )
      *
-     * @param Requests\User\UpdateUserRequest $request
+     * @param UpdateUserRequest $request
      * @param $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Requests\User\UpdateUserRequest $request, $id) {
-        return response()->json(null);
+    public function update(UpdateUserRequest $request, $id) {
+        if(!$target_user = User::find($id)) {
+            return response()->json(["message" => "user_not_found"], 404);
+        }
+
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        if($current_user->id != $target_user->id) {
+            // TODO check admin
+
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        foreach($request->all() as $key => $value) {
+            if(in_array($key, ["id", "password"])) {
+                continue;
+            }
+
+            $target_user[$key] = $value;
+        }
+        $target_user->save();
+
+        return response()->json(null, 200);
     }
 
     /**
@@ -233,11 +254,35 @@ class UserController extends Controller
      *      )
      * )
      *
-     * @param Requests\User\UpdatePasswordRequest $request
+     * @param UpdatePasswordRequest $request
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function updatePassword(Requests\User\UpdatePasswordRequest $request, $id) {
-        return response()->json(null);
+    public function updatePassword(UpdatePasswordRequest $request, $id) {
+        if(!$target_user = User::find($id)) {
+            return response()->json(["message" => "user_not_found"], 404);
+        }
+
+        $current_user = JWTAuth::parseToken()->authenticate();
+
+        if($current_user->id != $target_user->id) {
+            // TODO check admin
+
+            return response()->json(["message" => "no_permission"], 401);
+        }
+
+        $target_user->password = Hash::make($request->input("password"));
+
+        $target_user->save();
+
+        return response()->json(null, 200);
+    }
+
+    public function getOwnedEvent() {
+        // TODO get user owned event list (owner of events) ["users/{user_id}/events/owned"]
+    }
+
+    public function getJoinedEvent() {
+        // TODO get user joined event list (join and event has success finished) ["users/{user_id}/events/joined"]
     }
 }

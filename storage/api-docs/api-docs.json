@@ -436,6 +436,192 @@
                 }
             }
         },
+        "/images/event": {
+            "post": {
+                "tags": [
+                    "image"
+                ],
+                "summary": "Upload new event image",
+                "description": "Upload new image to server",
+                "operationId": "newEvent",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "required": true,
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "Event information",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Upload successful"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    },
+                    "422": {
+                        "description": "Invalid file type"
+                    }
+                }
+            }
+        },
+        "/notifications": {
+            "get": {
+                "tags": [
+                    "notification"
+                ],
+                "summary": "Get all notification",
+                "description": "Get all notification of current authenticated user (token)",
+                "operationId": "getAllNotification",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "required": true,
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Pagination page",
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notifications",
+                        "schema": {
+                            "$ref": "#/definitions/AllNotification"
+                        }
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired"
+                    }
+                }
+            }
+        },
+        "/notifications/{id}": {
+            "put": {
+                "tags": [
+                    "notification"
+                ],
+                "summary": "Update notification status",
+                "description": "Update notification status",
+                "operationId": "updateNotificationStatus",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Notification ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Notification status",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NotificationStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update notification successful"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    },
+                    "422": {
+                        "description": "Invalid parameters or given status"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "notification"
+                ],
+                "summary": "Remove notification",
+                "description": "Delete notification",
+                "operationId": "deleteNotification",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Token",
+                        "type": "string",
+                        "default": "Bearer "
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Notification ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Remove notification successful"
+                    },
+                    "400": {
+                        "description": "No token provided or invalid"
+                    },
+                    "401": {
+                        "description": "Token expired or no permission"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                }
+            }
+        },
         "/users": {
             "post": {
                 "tags": [
@@ -646,6 +832,26 @@
             },
             "type": "object"
         },
+        "AllNotification": {
+            "required": [
+                "notifications",
+                "pagination"
+            ],
+            "properties": {
+                "notifications": {
+                    "description": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Notification"
+                    }
+                },
+                "pagination": {
+                    "description": "",
+                    "$ref": "#/definitions/Pagination"
+                }
+            },
+            "type": "object"
+        },
         "AuthenticationInfo": {
             "required": [
                 "email",
@@ -820,6 +1026,49 @@
                 "password": {
                     "description": "",
                     "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Notification": {
+            "required": [
+                "id",
+                "key_id",
+                "value",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "key_id": {
+                    "description": "",
+                    "type": "string",
+                    "default": "Notification_key"
+                },
+                "value": {
+                    "description": "",
+                    "type": "string",
+                    "default": "JSON Object as string"
+                }
+            },
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NotificationStatus"
+                }
+            ]
+        },
+        "NotificationStatus": {
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "description": "",
+                    "type": "string",
+                    "default": "status"
                 }
             },
             "type": "object"

@@ -20,5 +20,5 @@ class Notification extends Model
      *
      * @var array
      */
-    protected $hidden = [];
+    protected $hidden = ["user_id", "key_id"];
 }

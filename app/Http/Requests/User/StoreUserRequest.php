@@ -45,7 +45,19 @@ class StoreUserRequest extends FormRequest
     public function messages()
     {
         return [
-
+            "user.email.required" => "required_email",
+            "user.email.email" => "invalid_email",
+            "user.email.unique" => "email_already_exist",
+            "user.first_name.required" => "required_first_name",
+            "user.last_name.required" => "required_last_name",
+            "user.display_name.required" => "required_display_name",
+            "user.birthdate.required" => "required_birthdate",
+            "user.birthdate.date_format" => "invalid_birthdate",
+            "user.gender.required" => "required_gender",
+            "user.gender.in" => "invalid_gender",
+            "user.religion.required" => "required_religion",
+            "user.phone.size" => "invalid_phone",
+            "password.required" => "required_password"
         ];
     }
 

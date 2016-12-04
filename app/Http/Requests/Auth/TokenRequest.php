@@ -28,7 +28,7 @@ class TokenRequest extends FormRequest
     public function rules()
     {
         return [
-            "email" => "required",
+            "email" => "required|email",
             "password" => "required"
         ];
     }
@@ -41,7 +41,9 @@ class TokenRequest extends FormRequest
     public function messages()
     {
         return [
-
+            "email.required" => "required_email",
+            "email.email" => "invalid_email",
+            "password.required" => "required_password"
         ];
     }
 

@@ -24,7 +24,7 @@ Route::resource('authentication', 'Api\AuthenticateController', ["only" => ["ind
 /**
  * User model route
  */
-Route::patch('users/{id}/password', 'Api\UserController@updatePassword')->name('api.user.password.update');
+Route::put('users/{id}/password', 'Api\UserController@updatePassword')->name('api.user.password.update');
 Route::resource('users', 'Api\UserController', ["only" => ["store", "show", "update"], "names" => [
     "store" => "api.user.store",
     "show" => "api.user.show",
@@ -46,10 +46,16 @@ Route::resource('events', 'Api\EventController', ["only" => ["index", "store", "
 ]]);
 
 /**
+ * Notification route
+ */
+Route::resource('notifications', 'Api\NotificationController', ["only" => ["index", "update", "destroy"], "names" => [
+    "index" => "api.notification.index",
+    "update" => "api.notification.update",
+    "destroy" => "api.notification.destroy"
+]]);
+
+/**
  * Image resource route
  */
-Route::resource('images', 'Api\ImageController', ["only" => ["index", "store"], "name" => [
-    "index" => "api.image.index",
-    "store" => "api.image.store"
-]]);
+Route::post('images/event', 'Api\ImageController@storeEventImage')->name('image.event.store');
 

@@ -14,3 +14,11 @@
 Route::get('/', function () {
     return view('bootstrap');
 });
+
+/**
+ * Uploads
+ */
+Route::group(["prefix" => "upload"], function() {
+    // Event Images
+    Route::get('images/event/{filename}', 'Api\ImageController@getEventImage')->name('image.event.get');
+});

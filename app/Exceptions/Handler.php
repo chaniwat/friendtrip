@@ -64,8 +64,8 @@ class Handler extends ExceptionHandler
     private function handleWeb($request, Exception $exception) {
         $bypass = false;
 
-        // Bypass assets
-        if($request->is('assets/*') || $request->is('favicon.ico')) {
+        // Bypass assets & upload
+        if($request->is('assets/*') || $request->is('upload/*') || $request->is('favicon.ico')) {
             $bypass = true;
         }
 

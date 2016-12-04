@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePasswordRequest extends FormRequest
@@ -24,7 +25,31 @@ class UpdatePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "password" => "required"
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            "password.required" => "required_password"
+        ];
+    }
+
+    /**
+     * Custom errors format
+     *
+     * @param Validator $validator
+     * @return array
+     */
+    protected function formatErrors(Validator $validator)
+    {
+        return ["message" => $validator->errors()->all()];
+    }
+
 }

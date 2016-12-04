@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
 
+use App\Http\Requests\Auth\TokenRequest;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -47,25 +48,15 @@ class AuthenticateController extends Controller
      *      )
      * )
      *
-     * @param Requests\Auth\TokenRequest $request
+     * @param TokenRequest $request
      * @return mixed
      */
-    public function authenticate(Requests\Auth\TokenRequest $request) {
-        $credentials = $request->only('email', 'password');
-
-        // verify the credentials and create a token for the user
-        if (!$token = JWTAuth::attempt($credentials)) {
+    public function authenticate(TokenRequest $request) {
+        if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
             return response()->json(['message' => 'invalid_credentials'], 401);
         }
 
-        // if no errors are encountered we can return a JWT with authenticate user
-        $user = JWTAuth::toUser($token);
-
-        if($request->get_info) {
-            return response()->json(["token" => $token, "user" => $user]);
-        } else {
-            return response()->json(["token" => $token]);
-        }
+        return response()->json($request->get_info ? ["token" => $token, "user" => JWTAuth::toUser($token)] : ["token" => $token]);
     }
 
     /**
@@ -102,8 +93,7 @@ class AuthenticateController extends Controller
      * @return mixed
      */
     public function index() {
-        $user = JWTAuth::parseToken()->authenticate();
-        return response()->json($user);
+        return response()->json(JWTAuth::parseToken()->authenticate());
     }
 
 }
