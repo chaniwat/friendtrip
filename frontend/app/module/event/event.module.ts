@@ -24,6 +24,11 @@ import { CreateEventComponent } from "./create-event.component";
     ShowEventComponent,
     CreateEventComponent
   ],
+  exports: [
+    EventComponent,
+    ShowEventComponent,
+    CreateEventComponent
+  ],
   providers: [
     EventService,
     EventResolve,
@@ -31,5 +36,4 @@ import { CreateEventComponent } from "./create-event.component";
     EventTypeResolve
   ]
 })
-export class EventModule {
-}
+export class EventModule {}

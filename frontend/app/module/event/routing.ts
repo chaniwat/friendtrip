@@ -13,26 +13,28 @@ import { EventTypeResolve } from './event-types-resolve.service';
 
 const appRoutes: Routes = [
   {
-    path: '',
+    path: 'event',
     component: EventComponent,
     resolve: {
       events: EventResolve
-    }
-  },
-  {
-    path: 'create',
-    component: CreateEventComponent,
-    canActivate: [AuthGuardService],
-    resolve: {
-      types: EventTypeResolve
-    }
-  },
-  {
-    path: ':id',
-    component: ShowEventComponent,
-    resolve: {
-      event: EventDetailResolve
-    }
+    },
+    children: [
+      {
+        path: 'create',
+        component: CreateEventComponent,
+        canActivate: [AuthGuardService],
+        resolve: {
+          types: EventTypeResolve
+        }
+      },
+      {
+        path: ':id',
+        component: ShowEventComponent,
+        resolve: {
+          event: EventDetailResolve
+        }
+      }
+    ]
   }
 ];
 

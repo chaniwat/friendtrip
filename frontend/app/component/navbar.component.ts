@@ -2,10 +2,13 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { UserService, User } from "../module/authentication";
+import { FormGroup, FormBuilder, Validators, FormControl } from "@angular/forms";
+import { ErrorResponse } from "../module/core/api.service";
 
 @Component({
   selector: 'comp-navbar',
-  templateUrl: 'navbar.component.html'
+  templateUrl: 'navbar.component.html',
+  styleUrls: ['navbar.component.scss']
 })
 export class NavbarComponent {
 
@@ -18,14 +21,18 @@ export class NavbarComponent {
     return this.userService.user;
   }
 
-  isLoggedIn(): boolean {
+  get isLoggedIn(): boolean {
     return this.userService.isHavingUser();
+  }
+
+  showLoginModal() {
+    this.userService.showLoginModal();
   }
 
   logout() {
     this.userService.logout();
-    toastr.success('Logout success');
-    this.router.navigateByUrl("/login");
+    toastr.info('ออกจากระบบ');
+    this.router.navigateByUrl("/");
   }
 
 }

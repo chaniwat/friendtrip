@@ -1,0 +1,18 @@
+// Main theme colors
+$t-color-primary: #00a7d9;
+$t-color-secondary: #615dff;
+$t-color-light: #F2F2F2;
+$t-color-dark: #0C0B0B;
+
+// Logo
+$t-logo-text-color: $t-color-primary;
+
+// Navbar
+$t-navbar-color: $t-color-primary;
+$t-navbar-link-color: rgba(255,255,255,.7) !default;
+$t-navbar-link-hover-color: rgba(255,255,255,.85) !default;
+$t-navbar-link-active-color: rgba(255,255,255,1) !default;
+$t-navbar-link-disabled-color: rgba(255,255,255,.55) !default;
+
+// Progress bar
+$t-progress-bar-color: darken($t-navbar-color, 10);

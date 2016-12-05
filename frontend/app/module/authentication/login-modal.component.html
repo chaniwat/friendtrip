@@ -1,0 +1,46 @@
+<!-- Authenticate modal -->
+<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 999998;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">เข้าสู่ระบบ</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+            <div class="row">
+              <div class="col-xs-12">
+                <div class="alert alert-danger text-xs-center" role="alert" [hidden]="errorMessage == ''">
+                  {{ errorMessage }}
+                </div>
+              </div>
+              <div class="col-xs-12">
+                <div class="form-group" [class.has-danger]="formRequiredError.email">
+                  <label class="form-control-label" for="modal-login-email">Email</label>
+                  <input class="form-control" [class.form-control-danger]="formRequiredError.email" type="email" formControlName="email" id="modal-login-email" placeholder="Email">
+                </div>
+              </div>
+              <div class="col-xs-12">
+                <div class="form-group" [class.has-danger]="formRequiredError.password">
+                  <label class="form-control-label" for="modal-login-password">Password</label>
+                  <input class="form-control" [class.form-control-danger]="formRequiredError.password" type="password" formControlName="password" id="modal-login-password" placeholder="Password">
+                </div>
+              </div>
+              <div class="col-xs-12">
+                <button type="submit" class="btn btn-block btn-primary" [disabled]="!!loginSubmitted" style="margin-bottom: 1em;">
+                  <i *ngIf="!loginSubmitted" class="fa fa-sign-in fa-fw"></i><i *ngIf="!!loginSubmitted" class="fa fa-circle-o-notch fa-spin fa-fw"></i> Login
+                </button>
+              </div>
+              <div class="col-xs-12">
+                <a routerLink="/register" class="btn btn-block btn-primary" [class.disabled]="!!loginSubmitted" data-dismiss="modal" style="margin-bottom: 1em;">สมัครสมาชิกใหม่</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,18 +1,20 @@
+@import "./bootstrap/mixins";
+
 .navbar-friendtrip {
   .navbar-brand {
-    color: $navbar-friendtrip-active-color;
+    color: $t-navbar-link-active-color;
 
     @include hover-focus {
-      color: $navbar-friendtrip-active-color;
+      color: $t-navbar-link-active-color;
     }
   }
 
   .navbar-nav {
     .nav-link {
-      color: $navbar-friendtrip-color;
+      color: $t-navbar-link-color;
 
       @include hover-focus {
-        color: $navbar-friendtrip-hover-color;
+        color: $t-navbar-link-hover-color;
       }
     }
 
@@ -21,7 +23,7 @@
     .nav-link.open,
     .nav-link.active {
       @include plain-hover-focus {
-        color: $navbar-friendtrip-active-color;
+        color: $t-navbar-link-active-color;
       }
     }
   }

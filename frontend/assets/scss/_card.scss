@@ -1,0 +1,58 @@
+@mixin card-variant($classname, $color, $text) {
+  .#{$classname} {
+    border-color: $color;
+
+    .card-header {
+      background-color: $color;
+      @if $text == 'black' {
+        color: black;
+
+        .card-subtitle {
+          color: #101010;
+        }
+      }
+      @if $text != 'black' {
+        color: white;
+
+        .card-subtitle {
+          color: #ededed;
+        }
+      }
+    }
+
+    .card-footer {
+      .btn {
+        @if $text == 'black' {
+          color: black;
+        }
+        @if $text != 'black' {
+          color: $color;
+        }
+        font-weight: bold;
+        background-image: none;
+        background-color: transparent;
+        border-color: $color;
+
+        &:hover {
+          @if $text == 'black' {
+            color: black;
+          }
+          @if $text != 'black' {
+            color: white;
+          }
+          background-color: $color;
+          border-color: $color;
+        }
+      }
+    }
+  }
+}
+
+@include card-variant('card-action', #dc5c32, 'while')
+@include card-variant('card-camping', #389d6c, 'while')
+@include card-variant('card-eating', #bb4a5e, 'while')
+@include card-variant('card-foreign', #3061c4, 'while')
+@include card-variant('card-wallet', #9a623f, 'while')
+@include card-variant('card-merit', #e8bb14, 'while')
+@include card-variant('card-nature', #047719, 'white')
+@include card-variant('card-walking', #5e8a83, 'while')

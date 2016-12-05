@@ -55,7 +55,7 @@ export class UserService {
    * @returns {Promise<Response>}
    */
   public authenticate(email: string, password: string): Promise<User> {
-    return this.api.post('authentication', { email, password, user: true })
+    return this.api.post('authentication', { email, password, get_info: true })
       .then(response => {
         this.localStorage.token = response.token;
         this.localStorage.user = { email, password };
@@ -90,6 +90,20 @@ export class UserService {
    */
   public isHavingUser(): boolean {
     return !!this.user;
+  }
+
+  /**
+   * Show login modal
+   */
+  public showLoginModal() {
+    $("#login-modal").modal('show');
+  }
+
+  /**
+   * Hide login modal
+   */
+  public hideLoginModal() {
+    $("#login-modal").modal('hide');
   }
 
 }

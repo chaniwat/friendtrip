@@ -1,0 +1,6 @@
+@import "./bootstrap/mixins";
+
+// Colors
+@include bg-variant('.bg-friendtrip-primary', $t-color-primary);
+@include bg-variant('.bg-friendtrip-secondary', $t-color-secondary);
+@include bg-variant('.bg-friendtrip-navbar', $t-navbar-color);

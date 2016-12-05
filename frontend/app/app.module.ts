@@ -5,27 +5,32 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CoolStorageModule } from 'angular2-cool-storage';
 
 import { CoreModule } from "./module/core/index";
+import { AuthenticationModule, UserService } from "./module/authentication";
+import { EventModule } from "./module/event";
 import { routing } from "./routing";
 
 import { AppComponent } from './app.component';
-import { HomeComponent, NavbarComponent, FooterComponent } from './component';
-
-import { AuthenticationModule, UserService } from "./module/authentication";
+import { HomeComponent, NavbarComponent } from './component';
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { FooterComponent } from "./component/footer.component";
 
 @NgModule({
   imports: [
     BrowserModule,
     HttpModule, // HTTP Service
     CoolStorageModule, // HTML5 Local Storage
+    FormsModule,
+    ReactiveFormsModule, // Reactive form
     CoreModule,
     AuthenticationModule,
+    EventModule,
     routing
   ],
   declarations: [
     AppComponent,
     HomeComponent,
     NavbarComponent,
-    FooterComponent,
+    FooterComponent
   ],
   providers: [
     { provide: APP_INITIALIZER,
@@ -50,7 +55,7 @@ export class AppModule {
       newestOnTop: true,
       progressBar: true,
       positionClass: "toast-bottom-left",
-      preventDuplicates: false,
+      preventDuplicates: true,
       onclick: null,
       showDuration: 300,
       hideDuration: 1000,

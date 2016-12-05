@@ -1,18 +1,18 @@
 @import "./dependencies";
+
+@import "./colors";
 @import "./variables";
 
+@import "./class";
+
 @import "./background";
+@import "./card";
 @import "./footer";
 @import "./navbar";
-@import "./progress_navbar";
+@import "./progress_bar";
 @import "./text";
 
 html {
   position: relative;
   min-height: 100%;
-}
-
-body {
-  background-color: #FFFFFF;
-  background-image: url(../images/overlay.png);
 }

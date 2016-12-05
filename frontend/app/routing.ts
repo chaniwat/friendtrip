@@ -7,10 +7,6 @@ const appRoutes: Routes = [
   {
     path: '',
     component: HomeComponent
-  },
-  {
-    path: 'event',
-    loadChildren: './module/event/index#EventModule'
   }
 ];
 

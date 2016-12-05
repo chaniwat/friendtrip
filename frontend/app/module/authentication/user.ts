@@ -2,10 +2,13 @@ export type Gender = "MALE" | "FEMALE";
 
 export class User {
   id: number;
-  name: string;
   email: string;
+  first_name: string;
+  last_name: string;
+  display_name: string;
+  birthdate: string;
   gender: Gender;
+  religion: string;
   phone: string;
-  created_at: string;
-  updated_at: string;
+  admin: boolean;
 }

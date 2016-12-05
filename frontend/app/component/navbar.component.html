@@ -1,7 +1,7 @@
 <nav class="navbar navbar-full navbar-friendtrip bg-friendtrip-navbar force-thai">
   <h1 class="navbar-brand mb-0">
     <!-- SVG Logo -->
-    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
     	 viewBox="0 0 1236.9 1236.9" enable-background="new 0 0 1236.9 1236.9" xml:space="preserve" width="30px" height="30px" class="d-inline-block align-top friendtrip-logo" alt="">
     <circle fill="#FFFFFF" cx="618.5" cy="618.5" r="618.5"/>
     <g>
@@ -16,28 +16,35 @@
       <a class="nav-link" routerLink="/">หน้าแรก</a>
     </li>
     <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <a class="nav-link" routerLink="/event">ดูกิจกรรม</a>
+      <a class="nav-link" routerLink="/event">อีเว้นท์</a>
     </li>
     <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <a class="nav-link" routerLink="/event/create">สร้างกิจกรรม</a>
+      <a class="nav-link" routerLink="/event/create">สร้าง</a>
     </li>
   </ul>
-  <div *ngIf="!isLoggedIn()" class="float-xs-right">
+  <div *ngIf="!isLoggedIn" class="float-xs-right">
     <ul class="nav navbar-nav">
-      <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <a class="nav-link" routerLink="/login">เข้าสู่ระบบ</a>
+      <!-- > 768px : modal -->
+      <li class="nav-item">
+        <a href="javascript:;" class="nav-link" (click)="showLoginModal()">เข้าสู่ระบบ</a>
       </li>
-      <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <a class="nav-link" routerLink="/register">สมัครสมาชิก</a>
-      </li>
+
+      <!-- < 768px -->
+      <!--<li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">-->
+        <!--<a class="nav-link" routerLink="/login">เข้าสู่ระบบ</a>-->
+      <!--</li>-->
+
+      <!--<li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">-->
+        <!--<a class="nav-link" routerLink="/register">สมัครสมาชิก</a>-->
+      <!--</li>-->
     </ul>
   </div>
-  <div *ngIf="isLoggedIn()">
+  <div *ngIf="isLoggedIn">
     <form class="form-inline float-xs-right">
       <button type="button" class="btn btn-primary" (click)="logout()">
         <i class="fa fa-sign-out"></i> logout
       </button>
     </form>
-    <span class="navbar-text text-white float-xs-right" style="margin-right: 1rem;"> ยินดีต้อนรับ, {{ user.name }}</span>
+    <span class="navbar-text text-white float-xs-right" style="margin-right: 1rem;"> ยินดีต้อนรับ, {{ user.display_name }}</span>
   </div>
 </nav>

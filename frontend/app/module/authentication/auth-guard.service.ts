@@ -23,8 +23,9 @@ export class AuthGuardService implements CanActivate, CanActivateChild {
     if(this.userService.isHavingUser()) {
       return true;
     } else {
-      this.router.navigateByUrl('/login');
+      this.userService.showLoginModal();
       toastr.warning("เข้าสู่ระบบ");
+      this.router.navigateByUrl('/');
       return false;
     }
   }
